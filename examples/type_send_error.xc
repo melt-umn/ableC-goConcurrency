@@ -4,7 +4,7 @@ int main (int argc, char **argv) {
 
   chan int ch = open chan;
 
-  spawn printTwice(ch2);
+  spawn printTwice(ch);
   <-ch;
 
   return 0; 

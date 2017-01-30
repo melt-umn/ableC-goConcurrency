@@ -10,7 +10,7 @@ int main (int argc, char **argv) {
     ch2 <- <-ch2;
   }(ch, ch2);
 
-  for {
+  while(true) {
     select {
         case <-ch:
             printf("Channel One");
