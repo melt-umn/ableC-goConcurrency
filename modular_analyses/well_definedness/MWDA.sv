@@ -1,4 +1,4 @@
-grammar edu:umn:cs:melt:exts:ableC:skeleton:modular_analyses:well_definedness ;
+grammar edu:umn:cs:melt:exts:ableC:goConcurrency:modular_analyses:well_definedness ;
 
 {- This Silver specification does not generate a useful working 
    compiler, it only serves as a grammar for running the modular
@@ -11,7 +11,7 @@ import edu:umn:cs:melt:exts:ableC:skeleton;
 
 parser extendedParser :: cst:Root {
   edu:umn:cs:melt:ableC:concretesyntax;
-  edu:umn:cs:melt:exts:ableC:skeleton;
+  edu:umn:cs:melt:exts:ableC:goConcurrency;
 } 
 
 function main

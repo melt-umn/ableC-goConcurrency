@@ -1,6 +1,6 @@
-grammar edu:umn:cs:melt:exts:ableC:skeleton ;
+grammar edu:umn:cs:melt:exts:ableC:goConcurrency ;
 
-exports edu:umn:cs:melt:exts:ableC:skeleton:src ;
+exports edu:umn:cs:melt:exts:ableC:goConcurrency:src ;
 
 {- Exporting the 'src' directory allows extension users to simply
    place your extension directory in a directory in which they already

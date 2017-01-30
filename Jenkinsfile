@@ -69,7 +69,7 @@ stage ("Build") {
 
     /* env.PATH is the master's path, not the executor's */
     withEnv(["PATH=${SILVER_BASE}/support/bin/:${env.PATH}"]) {
-      sh "cd ableC_Home/extensions/edu.umn.cs.melt.exts.ableC.skeleton/artifact && ./build.sh"
+      // sh "cd ableC_Home/extensions/edu.umn.cs.melt.exts.ableC.skeleton/artifact && ./build.sh"
     }
   }
 
@@ -79,8 +79,8 @@ stage ("Modular Analyses") {
   node {
     withEnv(["PATH=${SILVER_BASE}/support/bin/:${env.PATH}"]) {
       def mdir = "ableC_Home/extensions/edu.umn.cs.melt.exts.ableC.skeleton/modular_analyses"
-      sh "cd ${mdir}/determinism && ./run.sh"
-      sh "cd ${mdir}/well_definedness && ./run.sh"
+      // sh "cd ${mdir}/determinism && ./run.sh"
+      // sh "cd ${mdir}/well_definedness && ./run.sh"
     }
   }
 }
@@ -88,7 +88,7 @@ stage ("Modular Analyses") {
 stage ("Test") {
   node {
     def top_dir = "ableC_Home/extensions/edu.umn.cs.melt.exts.ableC.skeleton"
-    sh "cd ${top_dir}/test/positive && ./the_tests.sh"
+    // sh "cd ${top_dir}/test/positive && ./the_tests.sh"
     /* sh "cd ${top_dir}/test/negative && ./the_tests.sh" - no
        negative tests in skeleton.  But you will likely have these
        in your extension.  */

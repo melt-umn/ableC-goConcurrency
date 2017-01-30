@@ -1,9 +1,9 @@
-grammar edu:umn:cs:melt:exts:ableC:skeleton:src:concretesyntax;
+grammar edu:umn:cs:melt:exts:ableC:goConcurrency:src:concretesyntax;
 
 imports edu:umn:cs:melt:ableC:concretesyntax;
 imports silver:langutil only ast; 
 
-imports edu:umn:cs:melt:exts:ableC:skeleton:src:abstractsyntax;
+imports edu:umn:cs:melt:exts:ableC:goConcurrency:src:abstractsyntax;
 
 marking terminal Skeleton_t 'skeleton!' ;
 
