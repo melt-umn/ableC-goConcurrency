@@ -122,27 +122,12 @@ func chansend1(t *chantype, c *hchan, elem unsafe.Pointer) {
  * the operation; we'll see that it's now closed.
  */
 func chansend(t *chantype, c *hchan, ep unsafe.Pointer, block bool, callerpc uintptr) bool {
-	if raceenabled {
-		raceReadObjectPC(t.elem, ep, callerpc, funcPC(chansend))
-	}
-	if msanenabled {
-		msanread(ep, t.elem.size)
-	}
-
 	if c == nil {
 		if !block {
 			return false
 		}
 		gopark(nil, nil, "chan send (nil chan)", traceEvGoStop, 2)
 		throw("unreachable")
-	}
-
-	if debugChan {
-		print("chansend: chan=", c, "\n")
-	}
-
-	if raceenabled {
-		racereadpc(unsafe.Pointer(c), callerpc, funcPC(chansend))
 	}
 
 	// Fast path: check for failed non-blocking operation without acquiring the lock.
@@ -186,10 +171,7 @@ func chansend(t *chantype, c *hchan, ep unsafe.Pointer, block bool, callerpc uin
 	if c.qcount < c.dataqsiz {
 		// Space is available in the channel buffer. Enqueue the element to send.
 		qp := chanbuf(c, c.sendx)
-		if raceenabled {
-			raceacquire(qp)
-			racerelease(qp)
-		}
+
 		typedmemmove(c.elemtype, qp, ep)
 		c.sendx++
 		if c.sendx == c.dataqsiz {
@@ -251,25 +233,6 @@ func chansend(t *chantype, c *hchan, ep unsafe.Pointer, block bool, callerpc uin
 // sg must already be dequeued from c.
 // ep must be non-nil and point to the heap or the caller's stack.
 func send(c *hchan, sg *sudog, ep unsafe.Pointer, unlockf func()) {
-	if raceenabled {
-		if c.dataqsiz == 0 {
-			racesync(c, sg)
-		} else {
-			// Pretend we go through the buffer, even though
-			// we copy directly. Note that we need to increment
-			// the head/tail locations only when raceenabled.
-			qp := chanbuf(c, c.recvx)
-			raceacquire(qp)
-			racerelease(qp)
-			raceacquireg(sg.g, qp)
-			racereleaseg(sg.g, qp)
-			c.recvx++
-			if c.recvx == c.dataqsiz {
-				c.recvx = 0
-			}
-			c.sendx = c.recvx // c.sendx = (c.sendx+1) % c.dataqsiz
-		}
-	}
 	if sg.elem != nil {
 		sendDirect(c.elemtype, sg, ep)
 		sg.elem = nil
@@ -313,12 +276,6 @@ func closechan(c *hchan) {
 		panic(plainError("close of closed channel"))
 	}
 
-	if raceenabled {
-		callerpc := getcallerpc(unsafe.Pointer(&c))
-		racewritepc(unsafe.Pointer(c), callerpc, funcPC(closechan))
-		racerelease(unsafe.Pointer(c))
-	}
-
 	c.closed = 1
 
 	var glist *g
@@ -338,9 +295,6 @@ func closechan(c *hchan) {
 		}
 		gp := sg.g
 		gp.param = nil
-		if raceenabled {
-			raceacquireg(gp, unsafe.Pointer(c))
-		}
 		gp.schedlink.set(glist)
 		glist = gp
 	}
@@ -357,9 +311,6 @@ func closechan(c *hchan) {
 		}
 		gp := sg.g
 		gp.param = nil
-		if raceenabled {
-			raceacquireg(gp, unsafe.Pointer(c))
-		}
 		gp.schedlink.set(glist)
 		glist = gp
 	}
@@ -434,9 +385,6 @@ func chanrecv(t *chantype, c *hchan, ep unsafe.Pointer, block bool) (selected, r
 	lock(&c.lock)
 
 	if c.closed != 0 && c.qcount == 0 {
-		if raceenabled {
-			raceacquire(unsafe.Pointer(c))
-		}
 		unlock(&c.lock)
 		if ep != nil {
 			memclr(ep, uintptr(c.elemsize))
@@ -456,10 +404,6 @@ func chanrecv(t *chantype, c *hchan, ep unsafe.Pointer, block bool) (selected, r
 	if c.qcount > 0 {
 		// Receive directly from queue
 		qp := chanbuf(c, c.recvx)
-		if raceenabled {
-			raceacquire(qp)
-			racerelease(qp)
-		}
 		if ep != nil {
 			typedmemmove(c.elemtype, ep, qp)
 		}
@@ -527,9 +471,6 @@ func chanrecv(t *chantype, c *hchan, ep unsafe.Pointer, block bool) (selected, r
 // A non-nil ep must point to the heap or the caller's stack.
 func recv(c *hchan, sg *sudog, ep unsafe.Pointer, unlockf func()) {
 	if c.dataqsiz == 0 {
-		if raceenabled {
-			racesync(c, sg)
-		}
 		if ep != nil {
 			// copy data from sender
 			// ep points to our own stack or heap, so nothing
@@ -542,12 +483,6 @@ func recv(c *hchan, sg *sudog, ep unsafe.Pointer, unlockf func()) {
 		// its item at the tail of the queue. Since the
 		// queue is full, those are both the same slot.
 		qp := chanbuf(c, c.recvx)
-		if raceenabled {
-			raceacquire(qp)
-			racerelease(qp)
-			raceacquireg(sg.g, qp)
-			racereleaseg(sg.g, qp)
-		}
 		// copy data from queue to receiver
 		if ep != nil {
 			typedmemmove(c.elemtype, ep, qp)
@@ -707,11 +642,4 @@ func (q *waitq) dequeue() *sudog {
 
 		return sgp
 	}
-}
-
-func racesync(c *hchan, sg *sudog) {
-	racerelease(chanbuf(c, 0))
-	raceacquireg(sg.g, chanbuf(c, 0))
-	racereleaseg(sg.g, chanbuf(c, 0))
-	raceacquire(chanbuf(c, 0))
 }
