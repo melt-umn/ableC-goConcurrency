@@ -50,11 +50,6 @@ type waitq struct {
 	last  *sudog
 }
 
-//go:linkname reflect_makechan reflect.makechan
-func reflect_makechan(t *chantype, size int64) *hchan {
-	return makechan(t, size)
-}
-
 func makechan(t *chantype, size int64) *hchan {
 	elem := t.elem
 
@@ -569,37 +564,6 @@ func selectnbrecv2(t *chantype, elem unsafe.Pointer, received *bool, c *hchan) (
 	// TODO(khr): just return 2 values from this function, now that it is in Go.
 	selected, *received = chanrecv(t, c, elem, false)
 	return
-}
-
-//go:linkname reflect_chansend reflect.chansend
-func reflect_chansend(t *chantype, c *hchan, elem unsafe.Pointer, nb bool) (selected bool) {
-	return chansend(t, c, elem, !nb, getcallerpc(unsafe.Pointer(&t)))
-}
-
-//go:linkname reflect_chanrecv reflect.chanrecv
-func reflect_chanrecv(t *chantype, c *hchan, nb bool, elem unsafe.Pointer) (selected bool, received bool) {
-	return false, chanrecv(t, c, elem, !nb)
-}
-
-//go:linkname reflect_chanlen reflect.chanlen
-func reflect_chanlen(c *hchan) int {
-	if c == nil {
-		return 0
-	}
-	return int(c.qcount)
-}
-
-//go:linkname reflect_chancap reflect.chancap
-func reflect_chancap(c *hchan) int {
-	if c == nil {
-		return 0
-	}
-	return int(c.dataqsiz)
-}
-
-//go:linkname reflect_chanclose reflect.chanclose
-func reflect_chanclose(c *hchan) {
-	closechan(c)
 }
 
 func (q *waitq) enqueue(sgp *sudog) {
