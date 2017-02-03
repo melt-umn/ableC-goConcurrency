@@ -7,7 +7,7 @@ int main (int argc, char **argv) {
   chan int ch2 = open chan;
 
   spawn func(chan int ch, chan int ch2) {
-    ch2 <- <-ch2;
+    ch <- <-ch2;
   }(ch, ch2);
 
   while(true) {
