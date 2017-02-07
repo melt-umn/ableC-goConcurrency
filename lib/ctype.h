@@ -1,10 +1,6 @@
-/* Scheme type definitions and interface for value/list operations.
- * Authors: Ken Schiller, Patrick Stephen, Quinn Radich
- *
- * 1. Structures.
- * 2. Constructors.
- * 3. Linked list operations.
- * 4. Print and free operations.
+/* Primitive value / type definitions and interface for value/list operations.
+ * Original Authors: Ken Schiller, Patrick Stephen, Quinn Radich
+ * Current Author: Patrick Stephen
  */
 
 #ifndef VALUE_H

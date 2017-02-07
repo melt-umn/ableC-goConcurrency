@@ -5,7 +5,7 @@ int main (int argc, char **argv) {
   chan int ch = open chan;
   chan int ch2 = open chan;
 
-  spawn printTwice(ch2);
+  spawn example(ch2);
 
   // Main routine locks
   <-ch;
@@ -14,7 +14,7 @@ int main (int argc, char **argv) {
   return 0; 
 }
 
-int printTwice (chan int ch2) {
+int example (chan int ch2) {
     // Secondary routine locks;
     ch2 <- 1;
     return 0;

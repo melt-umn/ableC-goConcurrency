@@ -13,10 +13,10 @@ int main (int argc, char **argv) {
   while(true) {
     select {
         case <-ch:
-            printf("Channel One");
+            printf("Channel One\n");
             break;
         case ch2 <- 1:
-            printf("Channel Two");
+            printf("Channel Two\n");
     }
   }
 

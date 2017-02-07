@@ -6,7 +6,7 @@ int main (int argc, char **argv) {
 
   select {
       case <-ch: 
-        printf("Should not occur");
+        printf("Should not occur\n");
       default:  
   }
 

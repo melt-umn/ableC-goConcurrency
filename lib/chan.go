@@ -87,9 +87,6 @@ func makechan(t *chantype, size int64) *hchan {
 	c.elemtype = elem
 	c.dataqsiz = uint(size)
 
-	if debugChan {
-		print("makechan: chan=", c, "; elemsize=", elem.size, "; elemalg=", elem.alg, "; dataqsiz=", size, "\n")
-	}
 	return c
 }
 
@@ -498,72 +495,6 @@ func recv(c *hchan, sg *sudog, ep unsafe.Pointer, unlockf func()) {
 		sg.releasetime = cputicks()
 	}
 	goready(gp, 4)
-}
-
-// compiler implements
-//
-//	select {
-//	case c <- v:
-//		... foo
-//	default:
-//		... bar
-//	}
-//
-// as
-//
-//	if selectnbsend(c, v) {
-//		... foo
-//	} else {
-//		... bar
-//	}
-//
-func selectnbsend(t *chantype, c *hchan, elem unsafe.Pointer) (selected bool) {
-	return chansend(t, c, elem, false, getcallerpc(unsafe.Pointer(&t)))
-}
-
-// compiler implements
-//
-//	select {
-//	case v = <-c:
-//		... foo
-//	default:
-//		... bar
-//	}
-//
-// as
-//
-//	if selectnbrecv(&v, c) {
-//		... foo
-//	} else {
-//		... bar
-//	}
-//
-func selectnbrecv(t *chantype, elem unsafe.Pointer, c *hchan) (selected bool) {
-	selected, _ = chanrecv(t, c, elem, false)
-	return
-}
-
-// compiler implements
-//
-//	select {
-//	case v, ok = <-c:
-//		... foo
-//	default:
-//		... bar
-//	}
-//
-// as
-//
-//	if c != nil && selectnbrecv2(&v, &ok, c) {
-//		... foo
-//	} else {
-//		... bar
-//	}
-//
-func selectnbrecv2(t *chantype, elem unsafe.Pointer, received *bool, c *hchan) (selected bool) {
-	// TODO(khr): just return 2 values from this function, now that it is in Go.
-	selected, *received = chanrecv(t, c, elem, false)
-	return
 }
 
 func (q *waitq) enqueue(sgp *sudog) {
