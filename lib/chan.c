@@ -1,33 +1,7 @@
 
 
 #include <pthread.h>
-#include <stdbool.h>
-
-#ifndef CHANNEL_H
-#define CHANNEL_H
-
-typedef struct __Channel {
-    // The value within a channel always
-    // keeps the same type, but the stored 
-    // data of the value is transient, assigned
-    // by send calls and accessed by receive 
-    // calls. 
-    Value *v;
-    bool closed;
-    ThreadQueue *recvq;
-    ThreadQueue *sendq;
-    pthread_mutex_t lock;
-} Channel;
-
-typedef struct __ThreadQueue {
-    // Just using a boolean to busy wait here
-    // seems too easy and/or wasteful
-    bool *b;
-    struct __ThreadQueue *next; 
-} ThreadQueue;
-
-
-#endif
+#include <chan.h>
 
 *Channel make_int_chan() {
     Channel c = {

@@ -4,6 +4,5 @@
 build.xml
 *.jar
 
-*.c
 *.i
 a.out
