@@ -1,1 +1,1 @@
-To run: `gcc file.c -pthread -o out
+To run: `gcc file.c -pthread -o out`
