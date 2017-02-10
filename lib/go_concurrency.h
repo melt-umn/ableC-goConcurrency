@@ -2,19 +2,11 @@
 #ifndef GO_CONCURRENCY_H
 #define GO_CONCURRENCY_H
 
-#include <stdbool.h>
-#include <ctype.h>
+#include <pthread.h>
+#include <stdlib.h>
 
 // This routine spawning could go in a second header
-void spawn_routine(void*(*start_function) (void *));
-
-typedef struct __Channel { 
-    void *v;
-    bool closed;
-    ThreadQueue *recvq;
-    ThreadQueue *sendq;
-    pthread_mutex_t lock;
-} Channel;
+void spawn_routine(void*(*start_function) (void *), void *args);
 
 typedef struct __ThreadQueue {
     // Instead of a boolean, we have a pthread cond object
@@ -22,21 +14,30 @@ typedef struct __ThreadQueue {
     struct __ThreadQueue *next; 
 } ThreadQueue;
 
+ThreadQueue *new_thread_queue();
+
+typedef struct __Channel { 
+    void *v;
+    int closed;
+    ThreadQueue *recvq;
+    ThreadQueue *sendq;
+    pthread_mutex_t *lock;
+} Channel;
 
 Channel *open_chan();
 
-int close_chan(Channel *ch);
+void chan_close(Channel *ch);
 
-int send_chan(Channel *ch, void *v);
+void chan_send(Channel *ch, void *v);
 
-void *recv_chan(Channel *ch);
+void *chan_recv(Channel *ch);
 
 // Tries are used for select statements,
 // and should be incorporated in non-try
 // calls to avoid duplicating logic. 
 
-bool try_send_chan(Channel *ch, void *v);
+int try_chan_send(Channel *ch, void *v);
 
-bool try_recv_chan(Channel *ch);
+int try_chan_recv(Channel *ch);
 
 #endif
