@@ -3,12 +3,9 @@
 #include <pthread.h>
 #include <chan.h>
 
-*Channel make_int_chan() {
+*Channel make_chan() {
     Channel c = {
-        v: {
-            intType,
-            0,
-        },
+        v: NULL,
         closed: false,
         recvq: {
             NULL,
@@ -20,6 +17,7 @@
         }
         lock: PTHREAD_MUTEX_INITIALIZER 
     }
+    return &c;
 } 
 
 bool try_chan_send_locked(*Channel ch, *Value v) {
