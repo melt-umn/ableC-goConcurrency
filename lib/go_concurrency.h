@@ -22,9 +22,8 @@ typedef struct __Channel {
 } Channel;
 
 typedef struct __ThreadQueue {
-    // Just using a boolean to busy wait here
-    // seems too easy and/or wasteful
-    bool *b;
+    // Instead of a boolean, we have a pthread cond object
+    pthread_cond_t *cond;
     struct __ThreadQueue *next; 
 } ThreadQueue;
 

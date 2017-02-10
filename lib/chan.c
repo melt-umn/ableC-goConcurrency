@@ -27,14 +27,14 @@ void chan_send(*Channel ch, *Value v) {
     if (v2->type != v->type) {
         // Panic
     }
-    while (true) {
-        
+    while(true){
         pthread_mutex_lock(ch->lock);
-        bool *recv_lock = ch->recvq->first;
-        if (recv_lock != NULL) {
+        pthread_cond_t *recv_cond = ch->recvq->cond;
+        
+        if (recv_cond != NULL) {
             // If there is a reciever waiting for a value,
             // drop that reciever from the queue to claim it. 
-            ch->recvq = recv_lock->next;
+            ch->recvq = ch->recq->next;
             if (ch->recvq = NULL) {
                 ch->recvq = {
                     NULL,
@@ -45,9 +45,11 @@ void chan_send(*Channel ch, *Value v) {
             // value sent in, then unlock that reciever's
             // thread so they can properly recieve it.
             ch->v = v;
-            recv_lock = false;
+            // Wake the waiting sender up
+            pthread_cond_signal(recv_cond);
             return;
         }
+        // If there is not a waiting reciever
         pthread_mutex_unlock(ch->lock)
 
         // If no reciever is waiting for a value,
@@ -55,18 +57,18 @@ void chan_send(*Channel ch, *Value v) {
         // shows up so it can send v to it and
         // sync up. 
 
-        // This implementation uses a shared 
-        // boolean as a lock. This seems like
-        // it shouldn't work. The core idea is
-        // that the thread needs to lock itself
-        // inside something until another thread
-        // comes to unlock it. 
-        bool *send_lock = ch->sendq->first;
-        while (send_lock->first != NULL) {
+        // This implementation uses a conditional
+        // wait until there is an available reciever.
+        
+        // Go to end of sendq
+        ThreadQueue *send_lock = ch->sendq;
+        while (send_lock->next != NULL) {
             send_lock = send_lock->next;
         }
-        send_lock = &true;
+        send_lock->cond = &PTHREAD_COND_INITIALIZER;
         
-        while (send_lock) {}
+        pthread_cond_wait(send_lock->cond,ch->lock);
+            
     }
+    
 }
