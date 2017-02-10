@@ -8,13 +8,8 @@
 // This routine spawning could go in a second header
 void spawn_routine(void*(*start_function) (void *));
 
-typedef struct __Channel {
-    // The value within a channel always
-    // keeps the same type, but the stored 
-    // data of the value is transient, assigned
-    // by send calls and accessed by receive 
-    // calls. 
-    Value *v;
+typedef struct __Channel { 
+    void *v;
     bool closed;
     ThreadQueue *recvq;
     ThreadQueue *sendq;

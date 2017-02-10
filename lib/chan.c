@@ -55,9 +55,6 @@ bool try_chan_send(*Channel ch, *Value v) {
 
 void chan_send(*Channel ch, *Value v) {
     Value *v2 = ch->v;
-    if (v2->type != v->type) {
-        // Panic
-    }
     if (try_send_chan(ch, v)) {
         return
     }
@@ -81,4 +78,5 @@ void chan_send(*Channel ch, *Value v) {
     pthread_cond_wait(send_lock->cond,ch->lock);
     try_chan_send_locked(ch, v);
     pthread_mutex_unlock(ch->lock);
+    return
 }
