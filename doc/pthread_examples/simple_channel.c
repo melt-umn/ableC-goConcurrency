@@ -102,6 +102,7 @@ int recieve(SimpleChannel* ch){
 
 void* doSomething( void* arg ){
     SimpleChannel* ch = (SimpleChannel*) arg;
+    recieve(ch);
     printf("This is working\n");
 }
  
@@ -110,6 +111,5 @@ int main(){
     pthread_t thread;
     printf("started!\n");
     pthread_create(&thread, NULL, doSomething, ch );
-    int foo = recieve(ch);
     pthread_join(thread, NULL);
 }
