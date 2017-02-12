@@ -21,7 +21,7 @@ typedef struct __Channel {
     int closed;
     ThreadQueue *recvq;
     ThreadQueue *sendq;
-    pthread_mutex_t *lock;
+    pthread_mutex_t lock;
 } Channel;
 
 Channel *open_chan();

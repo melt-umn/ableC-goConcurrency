@@ -12,7 +12,7 @@ Channel *make_chan() {
     c->closed = 0;
     c->recvq = new_thread_queue();
     c->sendq = new_thread_queue();
-    c->lock = &lock;
+    c->lock = lock;
     return c;
 } 
 
@@ -42,18 +42,20 @@ int try_chan_send_locked(Channel *ch, void *v) {
         // Set the value of this channel to be the 
         // value sent in, then unlock that reciever's
         // thread so they can properly recieve it.
-        ch->v = v;
+        //ch->v = v;
         // Wake the waiting reciever up
+        pthread_mutex_unlock(&(ch->lock));
         pthread_cond_signal(recv_cond);
         return 1;
     }
+    pthread_mutex_unlock(&(ch->lock));
     return 0;
 }
 
 int try_chan_send(Channel *ch, void *v) {
-    pthread_mutex_lock(ch->lock);
+    pthread_mutex_lock(&(ch->lock));
     int b = try_chan_send_locked(ch, v);
-    pthread_mutex_unlock(ch->lock);
+    pthread_mutex_unlock(&(ch->lock));
     return b;
 }
 
@@ -75,15 +77,19 @@ void chan_send(Channel *ch, void *v) {
         send_lock = send_lock->next;
     }
     send_lock->next = new_thread_queue();
-    send_lock = send_lock->next; 
+
     pthread_cond_t cond = PTHREAD_COND_INITIALIZER; 
     send_lock->cond = &cond;
     
-    pthread_mutex_lock(ch->lock);
-    // cond_wait unlocks, and locks again after it returns
-    pthread_cond_wait(send_lock->cond,ch->lock);
-    try_chan_send_locked(ch, v);
-    pthread_mutex_unlock(ch->lock);
+    pthread_mutex_lock(&(ch->lock));
+    // cond_wait unlocks, and locks again after it return
+    printf("Send is waiting for reciever\n");
+    pthread_cond_wait(send_lock->cond,&(ch->lock));
+    printf("Send has woken for reciever\n");
+    //try_chan_send_locked(ch, v);
+    ch->v = v;
+    printf("Send has placed value into ch->v\n");
+    pthread_mutex_unlock(&(ch->lock));
     return;
 }
 
@@ -98,21 +104,26 @@ int try_chan_recv_locked(Channel *ch) {
             ch->sendq = new_thread_queue();
         }
         // Wake the waiting sender up
+        pthread_mutex_unlock(&(ch->lock));
+        printf("recieve is trying to wake up sender\n");
         pthread_cond_signal(send_cond);
         return 1;
     }
+    pthread_mutex_unlock(&(ch->lock));
     return 0;
 }
 
 int try_chan_recv(Channel *ch) {
-    pthread_mutex_lock(ch->lock);
+    pthread_mutex_lock(&(ch->lock));
     int b = try_chan_recv_locked(ch);
-    pthread_mutex_unlock(ch->lock);
+    pthread_mutex_unlock(&(ch->lock));
     return b;
 }
 
 void *chan_recv(Channel *ch) {
     if (try_chan_recv(ch)) {
+        sleep(1);
+        printf("ch->v = %d\n",*((int*)(ch->v)));
         void *ret_v = ch->v;
         return ret_v;
     }
@@ -127,27 +138,29 @@ void *chan_recv(Channel *ch) {
     pthread_cond_t cond = PTHREAD_COND_INITIALIZER; 
     recv_lock->cond = &cond;
 
-    pthread_mutex_lock(ch->lock);
+    pthread_mutex_lock(&(ch->lock));
     // cond_wait unlocks, and locks again after it returns
-    pthread_cond_wait(recv_lock->cond,ch->lock);
+    pthread_cond_wait(recv_lock->cond,&(ch->lock));
     try_chan_recv_locked(ch);
     void *ret_v = ch->v; 
-    pthread_mutex_unlock(ch->lock);
+    pthread_mutex_unlock(&(ch->lock));
     return ret_v;
 }
 
 void *testfunc(void* args) {
     printf( "I am inside the thread\n");   
     Channel *ch = (Channel*)args;
-    int send = 5;
+    int send = 69;
     chan_send(ch, &send);
+    sleep(2);
 }
 
 int main( int argc, char** argv ) {
     Channel *ch = make_chan();
     spawn_routine(testfunc, ch);
     //try_chan_recv(ch);
-    //int returned = *(int*)chan_recv(ch);
-    //printf("Result %d \n",returned);
     sleep(3);
+    printf("Main is trying to recieve.\n");
+    int returned = *(int*)chan_recv(ch);
+    printf("Result %d \n",returned);
 }
