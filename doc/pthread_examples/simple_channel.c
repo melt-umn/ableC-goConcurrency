@@ -9,10 +9,12 @@
 #include <unistd.h>
 
 
+//pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
+
 typedef struct __SimpleChannel {
     int value;
     pthread_cond_t* cond;
-    pthread_mutex_t* mtx;
+    pthread_mutex_t mtx;
     // status is 
     // 0 for nothing waiting
     // 1 for waiting to send
@@ -21,20 +23,20 @@ typedef struct __SimpleChannel {
 } SimpleChannel;
 
 
-SimpleChannel* createChannel(){
+SimpleChannel createChannel(){
     pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
     SimpleChannel ch = {
         0,
         NULL,
-        &mtx,
+        mtx,
         0
     };
-    return &ch;
+    return ch;
 }
 
 
 void send(SimpleChannel* ch, int v){
-    pthread_mutex_lock(ch->mtx);
+    pthread_mutex_lock(&(ch->mtx));
     // If waiting to recieve
     if(ch->status==2){
         // set value to v
@@ -42,7 +44,7 @@ void send(SimpleChannel* ch, int v){
         // set status to waiting
         ch->status = 0;
         // wake up waiting reciever
-        pthread_mutex_unlock(ch->mtx);
+        pthread_mutex_unlock(&(ch->mtx));
         pthread_cond_signal(ch->cond);
         return;
     }
@@ -53,63 +55,63 @@ void send(SimpleChannel* ch, int v){
     }
     // if nothing is ready to recieve
     else{
+        ch->status = 1;
         pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
         ch->cond = &cond;
-        pthread_mutex_unlock(ch->mtx);
-        // go to sleep until a reciever is found
-        pthread_cond_wait(&cond,ch->mtx);
-        pthread_mutex_lock(ch->mtx);
         // set value to v
         ch->value = v;
-        pthread_mutex_unlock(ch->mtx);
+        // go to sleep until a reciever is found
+        pthread_cond_wait(&cond,&(ch->mtx));
+        pthread_mutex_unlock(&(ch->mtx));
         return;
     }
 }
 
 int recieve(SimpleChannel* ch){
-    pthread_mutex_lock(ch->mtx);
+    pthread_mutex_lock(&(ch->mtx));
     int ret;
     // If waiting to send
     if(ch->status==1){
         // set status to waiting
         ch->status = 0;
-        // wake up waiting sender
-        pthread_cond_signal(ch->cond);
         // set value to v
         ret = ch->value;
-        pthread_mutex_unlock(ch->mtx);
+        // wake up waiting sender
+        pthread_mutex_unlock(&(ch->mtx));
+        pthread_cond_signal(ch->cond);
         return ret;
     }
     // if already waiting to recieve
     else if(ch->status==2){
         // do nothing
-        return;
+        return 0;
     }
     // if nothing is ready to send
     else{
+        ch->status = 2;
         pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
         ch->cond = &cond;
-        pthread_mutex_unlock(ch->mtx);
         // go to sleep until a sender is found
-        pthread_cond_wait(&cond,ch->mtx);
-        pthread_mutex_lock(ch->mtx);
+        pthread_cond_wait(&cond,&(ch->mtx));
         // set value to v
         ret = ch->value;
-        pthread_mutex_unlock(ch->mtx);
+        pthread_mutex_unlock(&(ch->mtx));
         return ret;
     }
 }
 
 void* doSomething( void* arg ){
     SimpleChannel* ch = (SimpleChannel*) arg;
-    recieve(ch);
-    printf("This is working\n");
+    int foo = recieve(ch);
+    printf("Recieved: %d\n",foo);
 }
  
 int main(){
-    SimpleChannel* ch = createChannel();
+    SimpleChannel ch = createChannel();
     pthread_t thread;
     printf("started!\n");
-    pthread_create(&thread, NULL, doSomething, ch );
+    pthread_create(&thread, NULL, doSomething, &ch );
+    send(&ch,13);
+    send(&ch,69);
     pthread_join(thread, NULL);
 }
