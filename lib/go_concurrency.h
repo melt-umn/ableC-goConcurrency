@@ -25,7 +25,7 @@ typedef struct __Channel {
     pthread_cond_t vcond;
 } Channel;
 
-Channel *open_chan();
+Channel *make_chan();
 
 void chan_close(Channel *ch);
 
