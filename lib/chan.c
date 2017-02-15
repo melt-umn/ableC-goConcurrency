@@ -31,6 +31,13 @@ void spawn_routine(void*(*start_function) (void *), void *args) {
     return; 
 }
 
+int select_chan_send(Channel *ch, void *v) {
+    pthread_mutex_lock(&(ch->lock));
+    int success = try_chan_send(ch, v);
+    pthread_mutex_unlock(&(ch->lock));
+    return success;
+}
+
 int try_chan_send(Channel *ch, void *v) {
     pthread_cond_t *recv_cond = ch->recvq->cond;
     
@@ -82,6 +89,16 @@ void chan_send(Channel *ch, void *v) {
     pthread_cond_signal(&(ch->vcond));
     pthread_mutex_unlock(&(ch->lock));
     return;
+}
+
+int select_chan_recv(Channel *ch, void **v) {
+    pthread_mutex_lock(&(ch->lock));
+    int success = try_chan_recv(ch); 
+    if(success) {
+        *v = ch->v;
+    } 
+    pthread_mutex_unlock(&(ch->lock));
+    return success;
 }
 
 int try_chan_recv(Channel *ch) {
