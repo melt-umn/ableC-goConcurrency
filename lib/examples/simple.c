@@ -16,7 +16,7 @@ void *testfunc(void* args) {
 }
 
 int main( int argc, char** argv ) {
-    Channel *ch = make_chan();
+    Channel *ch = chan_open();
     spawn_routine(testfunc, ch);
     printf("Main is trying to receive.\n");
     // int returned = <-ch;
@@ -24,4 +24,5 @@ int main( int argc, char** argv ) {
     printf("Result %d \n",returned);
     int returned2 = (int)chan_recv(ch);
     printf("Result %d \n",returned2);
+    chan_close(ch);
 }

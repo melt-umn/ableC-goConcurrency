@@ -1,6 +1,6 @@
 EDIR = ./examples
 
-all: chan.o $(EDIR)/sieve.o sieve $(EDIR)/simple.o simple $(EDIR)/overload.o overload
+all: chan.o $(EDIR)/sieve.o sieve $(EDIR)/simple.o simple $(EDIR)/overload.o overload $(EDIR)/select.o select
 
 chan.o: chan.c
 	gcc -c chan.c -pthread -o chan.o
@@ -23,5 +23,11 @@ overload: chan.o $(EDIR)/overload.o
 $(EDIR)/overload.o: $(EDIR)/overload.c
 	gcc -c $(EDIR)/overload.c -pthread -o $(EDIR)/overload.o
 
+select: chan.o $(EDIR)/select.o
+	gcc -g chan.o $(EDIR)/select.o -pthread -o select
+
+$(EDIR)/select.o: $(EDIR)/select.c
+	gcc -c $(EDIR)/select.c -pthread -o $(EDIR)/select.o
+
 clean:
-	rm $(EDIR)/*.o *.o simple sieve
+	rm $(EDIR)/*.o *.o simple sieve overload select

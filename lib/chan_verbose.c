@@ -6,23 +6,23 @@
 
 // Chan with print statements everywhere
 
-Channel *make_chan() {
-    printf("Entering make_chan\n");
+Channel *chan_open() {
+    printf("Entering chan_open\n");
     pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER; 
     pthread_cond_t cond = PTHREAD_COND_INITIALIZER; 
     Channel *c = malloc(sizeof(Channel));
     c->v = NULL;
     c->closed = 0;
-    c->recvq = new_thread_queue();
-    c->sendq = new_thread_queue();
+    c->recvq = _op_queue_new();
+    c->sendq = _op_queue_new();
     c->lock = lock;
     c->vcond = cond;
-    printf("Leaving make_chan\n");
+    printf("Leaving chan_open\n");
     return c;
 } 
 
-ThreadQueue *new_thread_queue() {
-    ThreadQueue *tq = malloc(sizeof(ThreadQueue));
+OpQueue *_op_queue_new() {
+    OpQueue *tq = malloc(sizeof(OpQueue));
     tq->cond = NULL;
     tq->next = NULL;
     return tq;
@@ -43,7 +43,7 @@ int try_chan_send(Channel *ch, void *v) {
         // drop that receiver from the queue to claim it. 
         ch->recvq = ch->recvq->next;
         if (ch->recvq == NULL) {
-            ch->recvq = new_thread_queue();
+            ch->recvq = _op_queue_new();
         }
         // Set the value of this channel to be the 
         // value sent in, then unlock that receiver's
@@ -76,11 +76,11 @@ void chan_send(Channel *ch, void *v) {
     // wait until there is an available receiver.
     
     // Go to end of sendq
-    ThreadQueue *send_lock = ch->sendq;
+    OpQueue *send_lock = ch->sendq;
     while (send_lock->next != NULL) {
         send_lock = send_lock->next;
     }
-    send_lock->next = new_thread_queue();
+    send_lock->next = _op_queue_new();
 
     pthread_cond_t cond = PTHREAD_COND_INITIALIZER; 
     send_lock->cond = &cond;
@@ -106,7 +106,7 @@ int try_chan_recv(Channel *ch) {
         // drop that sender from the queue to claim it. 
         ch->sendq = ch->sendq->next;
         if (ch->sendq == NULL) {
-            ch->sendq = new_thread_queue();
+            ch->sendq = _op_queue_new();
         }
         printf("receive is trying to wake up sender\n");
         pthread_cond_signal(send_cond);
@@ -130,11 +130,11 @@ void *chan_recv(Channel *ch) {
     }
     
     // Go to end of recvq
-    ThreadQueue *recv_lock = ch->recvq;
+    OpQueue *recv_lock = ch->recvq;
     while (recv_lock->next != NULL) {
         recv_lock = recv_lock->next;
     }
-    recv_lock->next = new_thread_queue();
+    recv_lock->next = _op_queue_new();
 
     pthread_cond_t cond = PTHREAD_COND_INITIALIZER; 
     recv_lock->cond = &cond;

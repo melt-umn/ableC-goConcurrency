@@ -54,7 +54,7 @@ void *printReceive(void *args)  {
 }
 
 int main( int argc, char** argv ) {
-    Channel *ch = make_chan();
+    Channel *ch = chan_open();
     spawn_routine(send1, ch);
 	spawn_routine(send2, ch);
 	spawn_routine(send3, ch);

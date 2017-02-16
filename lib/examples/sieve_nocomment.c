@@ -37,13 +37,13 @@ void *filter(void* args) {
 
 // The prime sieve: Daisy-chain Filter processes.
 int main( int argc, char** argv ) {
-    Channel *ch = make_chan();
+    Channel *ch = chan_open();
     spawn_routine(generate, ch);
     int i;
     for (i = 1; i < 101; i++) {
         int prime = (int)chan_recv(ch);
         printf("The %dth prime is: %d\n", i, prime);
-        Channel *ch1 = make_chan();
+        Channel *ch1 = chan_open();
         filter_args *f_args = malloc(sizeof(filter_args));
         f_args->in = ch;
         f_args->out = ch1;
