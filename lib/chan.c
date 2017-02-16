@@ -5,18 +5,6 @@
 #include <stdio.h>
 
 
-Channel *chan_open() {
-    pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER; 
-    pthread_cond_t cond = PTHREAD_COND_INITIALIZER; 
-    Channel *c = malloc(sizeof(Channel));
-    c->v = NULL;
-    c->recvq = _op_queue_new();
-    c->sendq = _op_queue_new();
-    c->lock = lock;
-    c->vcond = cond;
-    return c;
-} 
-
 OpQueue *_op_queue_new() {
     OpQueue *tq = malloc(sizeof(OpQueue));
     tq->cond = NULL;
@@ -30,6 +18,18 @@ void _op_queue_free(OpQueue *tq) {
     }
     free(tq);
 }
+
+Channel *chan_open() {
+    pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER; 
+    pthread_cond_t cond = PTHREAD_COND_INITIALIZER; 
+    Channel *c = malloc(sizeof(Channel));
+    c->v = NULL;
+    c->recvq = _op_queue_new();
+    c->sendq = _op_queue_new();
+    c->lock = lock;
+    c->vcond = cond;
+    return c;
+} 
 
 // In Go, closing a channel does more than free it--
 // specifically it prevents any thread from sending
