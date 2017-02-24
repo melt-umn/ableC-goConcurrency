@@ -9,7 +9,7 @@ set -e
 # The -I directive include, respectively, the parent directory of the
 # artifact, skeleton, and ableC specification direcoties.
 
-silver -I ../.. -I ../../../ableC -o ableC.jar $@ \
+silver -I ../.. -I ../../ableC -o ableC.jar $@ \
   edu:umn:cs:melt:exts:ableC:goConcurrency:artifact
 
 rm -f build.xml
