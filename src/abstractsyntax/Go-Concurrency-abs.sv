@@ -7,12 +7,12 @@ imports edu:umn:cs:melt:ableC:abstractsyntax:env as abs;
 imports silver:langutil;
 
 abstract production open
-top::abs:Expr ::= text::abs:Expr
+top::abs:Expr ::= 
 {
   forwards to 
-      directCallExpr( 
-        name("chan_open", location=top.location),
-        nil,
+      abs:directCallExpr( 
+        abs:name("chan_open", location=top.location),
+        abs:nilExpr(),
         location=top.location
       );
 }
