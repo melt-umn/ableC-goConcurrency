@@ -11,7 +11,7 @@ top::abs:Expr ::=
 {
   forwards to 
       abs:directCallExpr( 
-        abs:name("chan_open", location=top.location),
+        abs:name("open_chan", location=top.location),
         abs:nilExpr(),
         location=top.location
       );

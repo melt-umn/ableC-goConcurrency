@@ -6,7 +6,7 @@ imports silver:langutil only ast;
 imports edu:umn:cs:melt:exts:ableC:goConcurrency:src:abstractsyntax;
 
 terminal Arrow_t '<-';
-terminal Open_t 'open';
+marking terminal Open_t 'open' lexer classes {Ckeyword};
 terminal Close_t 'close';
 terminal Chan_t 'chan';
 terminal Spawn_t 'spawn';
