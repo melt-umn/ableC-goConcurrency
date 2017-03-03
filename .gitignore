@@ -1,3 +1,5 @@
+.gitignore
+
 # Emacs temp files
 *~
 
@@ -5,4 +7,5 @@ build.xml
 *.jar
 
 *.i
+*.o
 a.out

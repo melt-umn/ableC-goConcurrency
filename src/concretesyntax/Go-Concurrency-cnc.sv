@@ -7,7 +7,7 @@ imports edu:umn:cs:melt:exts:ableC:goConcurrency:src:abstractsyntax;
 
 terminal Arrow_t '<-';
 marking terminal Open_t 'open' lexer classes {Ckeyword};
-terminal Close_t 'close';
+marking terminal Close_t 'close' lexer classes {Ckeyword};
 terminal Chan_t 'chan';
 terminal Spawn_t 'spawn';
 terminal Select_t 'select';
@@ -18,4 +18,10 @@ concrete production open_c
 s::PrimaryExpr_c ::= Open_t Chan_t
 {
   s.ast = open(location=s.location);
+}
+
+concrete production close_c
+s::PrimaryExpr_c ::= Close_t '(' e::AssignExpr_c ')'
+{
+  s.ast = close(e.ast, location=s.location);
 }

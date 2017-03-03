@@ -16,3 +16,14 @@ top::abs:Expr ::=
         location=top.location
       );
 }
+
+abstract production close
+top::abs:Expr ::= e::abs:Expr
+{
+  forwards to
+      abs:directCallExpr( 
+        abs:name("chan_close", location=top.location),
+        abs:consExpr(e, abs:nilExpr()),
+        location=top.location
+      );
+}
