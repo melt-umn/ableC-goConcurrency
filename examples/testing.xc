@@ -1,9 +1,9 @@
 #include <stdio.h>
+#include "../lib/go_concurrency.h"
 
 int main(){
-  open chan;
-}
-
-void p(){
-  printf("it did something\n");
+  Channel* ch = open chan;
+  int a = 90;
+  ch->v = (void*) &a;
+  printf("%d\n",*((int*)(ch->v)));
 }

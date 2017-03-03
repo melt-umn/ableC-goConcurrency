@@ -8,6 +8,7 @@
 
 java -jar ../artifact/ableC.jar $1
 
+echo "after ableC.jar"
 # extract the base filename, everything before the dot (.)
 
 filename=$1
@@ -17,4 +18,6 @@ basefilename="${filename_withoutpath%.*}"
 
 cfile="${basefilename}.c"
 
-gcc ${cfile}
+make -C ../lib
+
+gcc ${cfile} -pthread -g ../lib/chan.o

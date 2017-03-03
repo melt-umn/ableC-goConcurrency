@@ -15,7 +15,7 @@ terminal Case_t 'case';
 terminal Default_t 'default';
 
 concrete production open_c
-s::Expr_c ::= Open_t Chan_t
+s::PrimaryExpr_c ::= Open_t Chan_t
 {
   s.ast = open(location=s.location);
 }
