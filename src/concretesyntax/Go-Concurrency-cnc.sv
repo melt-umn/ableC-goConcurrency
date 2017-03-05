@@ -5,7 +5,7 @@ imports silver:langutil only ast;
 
 imports edu:umn:cs:melt:exts:ableC:goConcurrency:src:abstractsyntax;
 
-marking terminal Arrow_t '<-' lexer classes{Ckeyword};
+marking terminal Arrow_t '<-' precedence = 7, association = left, lexer classes{Csymbol};
 marking terminal Open_t 'open' lexer classes {Ckeyword};
 marking terminal Close_t 'close' lexer classes {Ckeyword};
 terminal Chan_t 'chan';
@@ -32,8 +32,8 @@ s::Expr_c ::= '<-' ch::Expr_c
   s.ast = recieve(ch.ast, location=s.location);
 }
 
---concrete production sendTo_c
---s::Expr_c ::= ch::Expr_c '<-' v::Expr_c
---{
---  s.ast = send(ch.ast, v.ast, location=s.location);
---}
+concrete production sendTo_c
+s::Expr_c ::= ch::AssignExpr_c '<-' v::AssignExpr_c
+{
+  s.ast = send(ch.ast, v.ast, location=s.location);
+}

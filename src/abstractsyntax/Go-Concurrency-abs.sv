@@ -48,7 +48,7 @@ top::abs:Expr ::= ch::abs:Expr v::abs:Expr
           abs:explicitCastExpr(
             -- It seems like we're calling this a pointer twice
             -- which may be wrong 
-            abs:typeName(abs:directTypeExpr(abs:pointerType([], abs:builtinType([], abs:voidType()))),
+            abs:typeName(abs:directTypeExpr(abs:builtinType([], abs:voidType())),
               abs:pointerTypeExpr([], abs:baseTypeExpr())),
             v, location=top.location), abs:nilExpr())),
         location=top.location
