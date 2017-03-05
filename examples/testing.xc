@@ -6,5 +6,6 @@ int main(){
   int a = 90;
   ch->v = (void*) &a;
   printf("%d\n",*((int*)(ch->v)));
+  ch <- 3;
   close(ch);
 }
