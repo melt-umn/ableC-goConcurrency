@@ -54,3 +54,14 @@ top::abs:Expr ::= ch::abs:Expr v::abs:Expr
         location=top.location
       );
 }
+
+abstract production recieve
+top::abs:Expr ::= ch::abs:Expr
+{
+  forwards to
+      abs:directCallExpr( 
+        abs:name("chan_recv", location=top.location),
+        abs:consExpr(ch, abs:nilExpr()),
+        location=top.location
+      );
+}

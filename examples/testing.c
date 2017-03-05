@@ -876,6 +876,7 @@ signed int main()
     signed int a = 90;;
     (((ch)->v) = ((void *)(&(a))));
     ((printf)("%d\n", (*(((signed int *)(((ch)->v)))))));
+    ((chan_recv)((ch)));
     ((chan_close)((ch)));
   }
 }

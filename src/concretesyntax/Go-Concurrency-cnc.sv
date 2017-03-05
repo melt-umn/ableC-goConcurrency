@@ -26,8 +26,14 @@ s::PrimaryExpr_c ::= Close_t '(' e::AssignExpr_c ')'
   s.ast = close(e.ast, location=s.location);
 }
 
-concrete production sendTo_c
-s::Expr_c ::= ch::Expr_c Arrow_t v::Expr_c
+concrete production recieveFrom_c
+s::Expr_c ::= '<-' ch::Expr_c
 {
-  s.ast = send(ch.ast, v.ast, location=s.location);
+  s.ast = recieve(ch.ast, location=s.location);
 }
+
+--concrete production sendTo_c
+--s::Expr_c ::= ch::Expr_c '<-' v::Expr_c
+--{
+--  s.ast = send(ch.ast, v.ast, location=s.location);
+--}
