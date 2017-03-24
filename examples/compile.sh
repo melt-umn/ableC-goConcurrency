@@ -6,7 +6,7 @@
 # Of course, if the use of 'cut' below fails for you, then just run
 # the commands individually by hand.
 
-java -jar ../artifact/ableC.jar $1
+java -jar ../artifact/ableC.jar $1 $2
 
 echo "after ableC.jar"
 # extract the base filename, everything before the dot (.)
@@ -20,4 +20,4 @@ cfile="${basefilename}.c"
 
 make -C ../lib
 
-gcc ${cfile} -pthread -g ../lib/chan.o
+gcc ${cfile} -pthread -g

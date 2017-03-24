@@ -3,7 +3,8 @@
 int main (int argc, char **argv) {
 
 
-  chan int ch = open chan;
+  chan int ch = open int chan;
+  // Channel<int>* ch = chan_open<int>()
   chan int ch2 = open chan;
 
   spawn func(chan int ch, chan int ch2) {
