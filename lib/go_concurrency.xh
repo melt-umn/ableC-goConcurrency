@@ -159,7 +159,7 @@ void chan_send(Channel<a> *ch, a v) {
 template<a>
 int chan_recv_select(Channel<a> *ch, a *v) {
     pthread_mutex_lock(&(ch->lock));
-    int success = try_chan_recv(ch); 
+    int success = try_chan_recv<a>(ch); 
     if(success) {
         *v = ch->v;
     } 
@@ -188,7 +188,7 @@ int try_chan_recv(Channel<a> *ch) {
 template<a>
 a chan_recv(Channel<a> *ch) {
     pthread_mutex_lock(&(ch->lock));
-    if (try_chan_recv(ch)) {
+    if (try_chan_recv<a>(ch)) {
         a ret_v = ch->v;
         pthread_mutex_unlock(&(ch->lock));
         return ret_v;

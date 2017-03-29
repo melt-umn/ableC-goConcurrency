@@ -5,6 +5,6 @@
 
 int main(){
   Channel<int>* ch = chan_open<int>();
-  ch <- 4;
+  <-ch;
   chan_close<int>(ch);
 }

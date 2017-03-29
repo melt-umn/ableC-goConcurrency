@@ -928,64 +928,63 @@ static _template_Channel_builtin__signed_int_  *_template_chan_open_builtin__sig
 }
 
 
-static signed int _template_try_chan_send_builtin__signed_int_(_template_Channel_builtin__signed_int_  * ch, signed int  v)
+static signed int _template_try_chan_recv_builtin__signed_int_(_template_Channel_builtin__signed_int_  * ch)
 {
 
   {
-    pthread_cond_t  *recv_cond = (((ch)->recvq)->cond);;
-    if (((recv_cond) != (((void *)0))))
+    pthread_cond_t  *send_cond = (((ch)->sendq)->cond);;
+    if (((send_cond) != (((void *)0))))
     {
       {
-        (((ch)->recvq) = (((ch)->recvq)->next));
-        if ((((ch)->recvq) == (((void *)0))))
+        (((ch)->sendq) = (((ch)->sendq)->next));
+        if ((((ch)->sendq) == (((void *)0))))
         {
           {
-            (((ch)->recvq) = ((_op_queue_new)()));
+            (((ch)->sendq) = ((_op_queue_new)()));
           }
         } else {
           
         }
-        (((ch)->v) = (v));
-        ((pthread_cond_signal)((recv_cond)));
+        ((pthread_cond_signal)((send_cond)));
+        ((pthread_cond_wait)((&(((ch)->vcond))), (&(((ch)->lock)))));
         return 1;
       }
     } else {
       
     }
-    
     return 0;
   }
 }
-static void _template_chan_send_builtin__signed_int_(_template_Channel_builtin__signed_int_  * ch, signed int  v)
+static signed int _template_chan_recv_builtin__signed_int_(_template_Channel_builtin__signed_int_  * ch)
 {
 
   {
     ((pthread_mutex_lock)((&(((ch)->lock)))));
-    if (((_template_try_chan_send_builtin__signed_int_)((ch), (v))))
+    if (((_template_try_chan_recv_builtin__signed_int_)((ch))))
     {
       {
+        signed int ret_v = ((ch)->v);;
         ((pthread_mutex_unlock)((&(((ch)->lock)))));
-        return ;
+        return (ret_v);
       }
     } else {
       
     }
-    OpQueue  *send_lock = ((ch)->sendq);;
-    while ((((send_lock)->next) != (((void *)0))))
+    OpQueue  *recv_lock = ((ch)->recvq);;
+    while ((((recv_lock)->next) != (((void *)0))))
     {
       {
-        ((send_lock) = ((send_lock)->next));
+        ((recv_lock) = ((recv_lock)->next));
       }
     }
-    (((send_lock)->next) = ((_op_queue_new)()));
+    (((recv_lock)->next) = ((_op_queue_new)()));
     pthread_cond_t cond = {{0, 0, 0, 0, 0, ((void *)0), 0, 0}};;
-    (((send_lock)->cond) = (&(cond)));
-    ((pthread_cond_wait)(((send_lock)->cond), (&(((ch)->lock)))));
-    ((_op_queue_free)((send_lock)));
-    (((ch)->v) = (v));
-    ((pthread_cond_signal)((&(((ch)->vcond)))));
+    (((recv_lock)->cond) = (&(cond)));
+    ((pthread_cond_wait)(((recv_lock)->cond), (&(((ch)->lock)))));
+    ((_op_queue_free)((recv_lock)));
+    signed int ret_v = ((ch)->v);;
     ((pthread_mutex_unlock)((&(((ch)->lock)))));
-    return ;
+    return (ret_v);
   }
 }
 
@@ -1022,7 +1021,7 @@ signed int main()
 
   {
     _template_Channel_builtin__signed_int_  *ch = ((_template_chan_open_builtin__signed_int_)());;
-    ((_template_chan_send_builtin__signed_int_)((ch), 4));
+    ((_template_chan_recv_builtin__signed_int_)((ch)));
     ((_template_chan_close_builtin__signed_int_)((ch)));
   }
 }
