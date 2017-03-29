@@ -363,10 +363,6 @@ extern signed int ftrylockfile(FILE  * __stream) __attribute__((__nothrow__, __l
 
 extern void funlockfile(FILE  * __stream) __attribute__((__nothrow__, __leaf__));
 
-extern signed long __sysconf(signed int  );
-
-typedef __clock_t clock_t;
-
 typedef __time_t time_t;
 
 struct timespec {
@@ -374,6 +370,51 @@ struct timespec {
   __syscall_slong_t tv_nsec;
   
 };
+
+typedef __pid_t pid_t;
+
+struct sched_param {
+  signed int __sched_priority;
+  
+};
+
+struct __sched_param {
+  signed int __sched_priority;
+  
+};
+
+typedef unsigned long __cpu_mask;
+
+typedef struct  {
+  __cpu_mask __bits[(1024 / ((8 * (sizeof(__cpu_mask)))))];
+  
+} cpu_set_t;
+
+extern signed int __sched_cpucount(size_t  __setsize, const cpu_set_t  * __setp) __attribute__((__nothrow__, __leaf__));
+
+extern cpu_set_t  *__sched_cpualloc(size_t  __count) __attribute__((__nothrow__, __leaf__));
+
+extern void __sched_cpufree(cpu_set_t  * __set) __attribute__((__nothrow__, __leaf__));
+
+extern signed int sched_setparam(__pid_t  __pid, const struct sched_param  * __param) __attribute__((__nothrow__, __leaf__));
+
+extern signed int sched_getparam(__pid_t  __pid, struct sched_param  * __param) __attribute__((__nothrow__, __leaf__));
+
+extern signed int sched_setscheduler(__pid_t  __pid, signed int  __policy, const struct sched_param  * __param) __attribute__((__nothrow__, __leaf__));
+
+extern signed int sched_getscheduler(__pid_t  __pid) __attribute__((__nothrow__, __leaf__));
+
+extern signed int sched_yield(void) __attribute__((__nothrow__, __leaf__));
+
+extern signed int sched_get_priority_max(signed int  __algorithm) __attribute__((__nothrow__, __leaf__));
+
+extern signed int sched_get_priority_min(signed int  __algorithm) __attribute__((__nothrow__, __leaf__));
+
+extern signed int sched_rr_get_interval(__pid_t  __pid, struct timespec  * __t) __attribute__((__nothrow__, __leaf__));
+
+extern signed long __sysconf(signed int  );
+
+typedef __clock_t clock_t;
 
 struct tm {
   signed int tm_sec;
@@ -427,47 +468,6 @@ extern char  *tzname[2];
 extern void tzset(void) __attribute__((__nothrow__, __leaf__));
 
 extern signed int timespec_get(struct timespec  * __ts, signed int  __base) __attribute__((__nothrow__, __leaf__)) __attribute__((__nonnull__(1)));
-
-typedef __pid_t pid_t;
-
-struct sched_param {
-  signed int __sched_priority;
-  
-};
-
-struct __sched_param {
-  signed int __sched_priority;
-  
-};
-
-typedef unsigned long __cpu_mask;
-
-typedef struct  {
-  __cpu_mask __bits[(1024 / ((8 * (sizeof(__cpu_mask)))))];
-  
-} cpu_set_t;
-
-extern signed int __sched_cpucount(size_t  __setsize, const cpu_set_t  * __setp) __attribute__((__nothrow__, __leaf__));
-
-extern cpu_set_t  *__sched_cpualloc(size_t  __count) __attribute__((__nothrow__, __leaf__));
-
-extern void __sched_cpufree(cpu_set_t  * __set) __attribute__((__nothrow__, __leaf__));
-
-extern signed int sched_setparam(__pid_t  __pid, const struct sched_param  * __param) __attribute__((__nothrow__, __leaf__));
-
-extern signed int sched_getparam(__pid_t  __pid, struct sched_param  * __param) __attribute__((__nothrow__, __leaf__));
-
-extern signed int sched_setscheduler(__pid_t  __pid, signed int  __policy, const struct sched_param  * __param) __attribute__((__nothrow__, __leaf__));
-
-extern signed int sched_getscheduler(__pid_t  __pid) __attribute__((__nothrow__, __leaf__));
-
-extern signed int sched_yield(void) __attribute__((__nothrow__, __leaf__));
-
-extern signed int sched_get_priority_max(signed int  __algorithm) __attribute__((__nothrow__, __leaf__));
-
-extern signed int sched_get_priority_min(signed int  __algorithm) __attribute__((__nothrow__, __leaf__));
-
-extern signed int sched_rr_get_interval(__pid_t  __pid, struct timespec  * __t) __attribute__((__nothrow__, __leaf__));
 
 typedef unsigned long pthread_t;
 
@@ -1022,9 +1022,6 @@ signed int main()
 
   {
     _template_Channel_builtin__signed_int_  *ch = ((_template_chan_open_builtin__signed_int_)());;
-    char a = 'a';;
-    (((ch)->v) = (a));
-    ((printf)("%d\n", (((ch)->v))));
     ((_template_chan_send_builtin__signed_int_)((ch), 4));
     ((_template_chan_close_builtin__signed_int_)((ch)));
   }

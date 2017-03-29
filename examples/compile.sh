@@ -6,7 +6,7 @@
 # Of course, if the use of 'cut' below fails for you, then just run
 # the commands individually by hand.
 
-java -jar ../artifact/ableC.jar $1 $2
+java -jar ../artifact/ableC.jar $1
 
 echo "after ableC.jar"
 # extract the base filename, everything before the dot (.)
