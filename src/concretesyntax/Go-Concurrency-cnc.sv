@@ -5,7 +5,7 @@ imports silver:langutil only ast;
 
 imports edu:umn:cs:melt:exts:ableC:goConcurrency:src:abstractsyntax;
 
-marking terminal Arrow_t '<-' precedence = 7, association = left, lexer classes{Csymbol};
+marking terminal Arrow_t '<-' lexer classes{Ckeyword};
 marking terminal Open_t 'open' lexer classes {Ckeyword};
 marking terminal Close_t 'close' lexer classes {Ckeyword};
 terminal Chan_t 'chan';
@@ -15,9 +15,9 @@ terminal Case_t 'case';
 terminal Default_t 'default';
 
 concrete production open_c
-s::PrimaryExpr_c ::= Open_t Chan_t
+s::PrimaryExpr_c ::= Open_t Chan_t '<' t::TypeName_c '>'
 {
-  s.ast = open(location=s.location);
+  s.ast = open(t.ast, location=s.location);
 }
 
 concrete production close_c
@@ -27,7 +27,7 @@ s::PrimaryExpr_c ::= Close_t '(' e::AssignExpr_c ')'
 }
 
 concrete production recieveFrom_c
-s::Expr_c ::= '<-' ch::Expr_c
+s::PrimaryExpr_c ::= '(' '<-' ch::Expr_c ')'
 {
   s.ast = recieve(ch.ast, location=s.location);
 }
@@ -45,7 +45,7 @@ s::Expr_c ::= ch::AssignExpr_c '<-' v::AssignExpr_c
 --}
 
 --concrete productions spawn_function_c
---s::Expr_c ::= Spawn_t '( lambda::Expr_c )' ':' '( args::ArgumentExprList_c )'
+--s::Expr_c ::= Spawn_t lambda::Expr_c '(' args::ArgumentExprList_c ')'
 --{ 
 --  top.ast = spawnFunction(foldExpr(args.ast), lambda.ast, location=top.location); 
 --}
