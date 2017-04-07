@@ -39,7 +39,7 @@ s::Expr_c ::= ch::AssignExpr_c '<-' v::AssignExpr_c
 }
 
 concrete production spawn_function_c
-s::Expr_c ::= Spawn_t lambda::Expr_c '(' args::ArgumentExprList_c ')'
+s::Stmt_c ::= Spawn_t lambda::Expr_c '(' args::ArgumentExprList_c ')'
 { 
-  top.ast = spawnFunction(foldExpr(args.ast), lambda.ast, location=top.location); 
+  s.ast = spawnFunction(args.ast, lambda.ast); 
 }

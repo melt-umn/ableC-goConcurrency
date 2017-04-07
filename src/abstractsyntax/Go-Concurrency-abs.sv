@@ -53,22 +53,12 @@ top::Expr ::= ch::Expr
           consExpr(ch, nilExpr()), location=top.location);
 }
 
---abstract production spawnFunction
---top::Expr ::= args::Exprs f::Expr 
---{
-  -- we need to create a function which will
-  -- pull out everything in args out of a void * *
-  -- and call f. 
-  -- we then need to call that function with spawn_function
-  -- and the args packed into a void * *. 
---}
-
 global builtin::Location = builtinLoc("go_conc");
 
 abstract production spawnFunction
-top::Stmt ::= args::Exprs res::Expr
+top::Stmt ::= argList::[Expr] res::Expr
 {
-
+  local args::Exprs = foldExpr(argList);
   local id::String = toString(genInt()); 
   local argStructName::String = s"_spawn_arg_${id}_s";
   local funName::String = s"_spawn_fn_${id}";
