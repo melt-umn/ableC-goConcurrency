@@ -83,7 +83,7 @@ top::Stmt ::= args::Exprs res::Expr
   
   local funDcl::Decl =
     subDecl(
-      [stmtSubstitution("__call__", callFromStruct(funName, argStructName)],
+      [stmtSubstitution("__call__", callFromStruct(funName, argStructName))],
       decls(
         parseDecls(s"""
             static void * ${funName}(void *_arg_ptr) {
@@ -94,37 +94,37 @@ top::Stmt ::= args::Exprs res::Expr
 
   local globalDecls::Decls = foldDecl([argStructDcl, funDcl]);
  
-  local structVarName::String = s”_spawn_struct_var_${id}_s”;
-  local structVarExpr::Expr = parseExpr(s”””${structVarName}”””);
+  local structVarName::String = s"_spawn_struct_var_${id}_s";
+  local structVarExpr::Expr = parseExpr(s"""${structVarName}""");
 
-  Local actual_forwards :: Stmt = seqStmt(
+  local actual_forwards::Stmt = seqStmt(
       makeArgStruct(args,argStructName,structVarName),
         exprStmt(
-            directCallExpr(“spawn_function”,
+            directCallExpr("spawn_function",
                 consExpr(
-                    parseExpr(s”””${funName}”””), consExpr(
+                    parseExpr(s"""${funName}"""), consExpr(
                         explicitCastExpr(typeName(
                             directTypeExpr(builtinType([],voidType()), 
                                 pointerTypeExpr([], baseTypeExpr()))), 
                             structVarExpr), 
                         nilExpr())))));
 
-  Forwards to injectGlobalDeclsStmt (  globalDecls, actual_forwards );
+  forwards to injectGlobalDeclsStmt (  globalDecls, actual_forwards );
 }
 
 -- return a filled in struct of type structName with the given args
 function makeArgStruct
 Stmt::= args:Exprs structName::Name varName::Name
 {	
-	seqStm(parseStmt(s”””malloc(sizeof(${structName}))”””),
+	return seqStm(parseStmt(s"""malloc(sizeof(${structName}))"""),
                          fillArgs(args,varName, 0));
 }
 
 function fillArgs
 Stmt::= args::Exprs varName::Name count::Integer
 {
-   headStmt::Stmt = subStmt([exprSubstitution(“__expr__”, head(args))],
-                    parseStmt(s”””${varName}.${count} = __expr__”””));
+   local headStmt::Stmt = subStmt([exprSubstitution("__expr__", head(args))],
+                    parseStmt(s"""${varName}.${count} = __expr__"""));
 
    return if args.count == 1 then headStmt  
                else seqStmt(headStmt, fillArgs(tail(args),varName, count+1));
@@ -134,14 +134,14 @@ Stmt::= args::Exprs varName::Name count::Integer
 function callFromStruct
 Stmt ::= funName::Name args::Exprs
 { 
-   directCallExpr(funName, paramsFromStruct(args, 0));  
+   return directCallExpr(funName, paramsFromStruct(args, 0));  
 }
 
 function paramsFromStruct
 Exprs ::= args::Exprs count::Integer
 {
-    return consExpr(parseExpr(s”””_env.f${count}”””), 
-              If args.count == 1 then nilExpr()
+    return consExpr(parseExpr(s"""_env.f${count}"""), 
+              if args.count == 1 then nilExpr()
                  else fieldsFromStruct(tail(args), count+1));
 }
 
@@ -150,8 +150,8 @@ function argsToStructItems
 StructItemList ::= args::Exprs count::Integer
 {
   return foldr(consStructItem, structItem([], head(args).typerep, 
-        structField(name(s”f${count}”,location=head(args).location),
-            nilTypeModifierExpr(), []))
+        structField(name(s"f${count}",location=head(args).location),
+            nilTypeModifierExpr(), [])),
             if args.count == 1 then []
             else argsToStructItems(tail(args), count+1));
 }
