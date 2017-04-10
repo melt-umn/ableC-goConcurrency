@@ -1,6 +1,9 @@
 grammar edu:umn:cs:melt:exts:ableC:goConcurrency:src:abstractsyntax;
 
 imports edu:umn:cs:melt:ableC:abstractsyntax;
+imports edu:umn:cs:melt:ableC:abstractsyntax:construction;
+imports edu:umn:cs:melt:ableC:abstractsyntax:construction:parsing;
+imports edu:umn:cs:melt:ableC:abstractsyntax:substitution;
 imports edu:umn:cs:melt:ableC:abstractsyntax:env;
 imports edu:umn:cs:melt:exts:ableC:templating:abstractsyntax as tmp;
 
@@ -68,12 +71,12 @@ top::Stmt ::= argList::[Expr] res::Expr
       structTypeExpr([],
         structDecl([],
           justName(name(argStructName, location=builtin)),
-          argsToStructItems(args, 0),
+          argsToStructItems(argList, 0),
           location=builtin)));
   
   local funDcl::Decl =
     subDecl(
-      [stmtSubstitution("__call__", callFromStruct(funName, argStructName))],
+      [stmtSubstitution("__call__", callFromStruct(name(funName,location=builtin), argList))],
       decls(
         parseDecls(s"""
             static void * ${funName}(void *_arg_ptr) {
@@ -88,60 +91,65 @@ top::Stmt ::= argList::[Expr] res::Expr
   local structVarExpr::Expr = parseExpr(s"""${structVarName}""");
 
   local actual_forwards::Stmt = seqStmt(
-      makeArgStruct(args,argStructName,structVarName),
+      makeArgStruct(argList,argStructName,structVarName),
         exprStmt(
-            directCallExpr("spawn_function",
+            directCallExpr(name("spawn_function",location=builtin),
                 consExpr(
                     parseExpr(s"""${funName}"""), consExpr(
                         explicitCastExpr(typeName(
-                            directTypeExpr(builtinType([],voidType()), 
-                                pointerTypeExpr([], baseTypeExpr()))), 
-                            structVarExpr), 
-                        nilExpr())))));
+                            directTypeExpr(builtinType([],voidType())), 
+                                pointerTypeExpr([], baseTypeExpr())), 
+                            structVarExpr, location=builtin), 
+                        nilExpr())), location=builtin)));
 
   forwards to injectGlobalDeclsStmt (  globalDecls, actual_forwards );
 }
 
 -- return a filled in struct of type structName with the given args
 function makeArgStruct
-Stmt::= args:Exprs structName::Name varName::Name
+Stmt::= args::[Expr] structName::String varName::String
 {	
-	return seqStm(parseStmt(s"""malloc(sizeof(${structName}))"""),
+	return seqStmt(parseStmt(s"""malloc(sizeof(${structName}))"""),
                          fillArgs(args,varName, 0));
 }
 
 function fillArgs
-Stmt::= args::Exprs varName::Name count::Integer
+Stmt::= args::[Expr] varName::String count::Integer
 {
-   local headStmt::Stmt = subStmt([exprSubstitution("__expr__", head(args))],
-                    parseStmt(s"""${varName}.${count} = __expr__"""));
+   local count_s::String = toString(count);
+   local headStmt::Stmt = subStmt([exprsSubstitution("__expr__", consExpr(head(args),nilExpr()))],
+                    parseStmt(s"""${varName}.f${count_s} = __expr__"""));
 
-   return if args.count == 1 then headStmt  
+   return if length(args) == 1 then headStmt  
                else seqStmt(headStmt, fillArgs(tail(args),varName, count+1));
 }
 
 -- put all of the args from the struct and call the function
 function callFromStruct
-Stmt ::= funName::Name args::Exprs
+Stmt ::= funName::Name args::[Expr]
 { 
-   return directCallExpr(funName, paramsFromStruct(args, 0));  
+   return exprStmt(directCallExpr(funName, paramsFromStruct(args, 0), location=builtin));  
 }
 
 function paramsFromStruct
-Exprs ::= args::Exprs count::Integer
+Exprs ::= args::[Expr] count::Integer
 {
-    return consExpr(parseExpr(s"""_env.f${count}"""), 
-              if args.count == 1 then nilExpr()
-                 else fieldsFromStruct(tail(args), count+1));
+    local count_s::String = toString(count);
+    return consExpr(parseExpr(s"""_env.f${count_s}"""), 
+              if length(args) == 1 then nilExpr()
+                 else paramsFromStruct(tail(args), count+1));
 }
 
 -- returns a list of struct items from the list of arguments passed in
 function argsToStructItems
-StructItemList ::= args::Exprs count::Integer
+StructItemList ::= args::[Expr] count::Integer
 {
-  return foldr(consStructItem, structItem([], head(args).typerep, 
-        structField(name(s"f${count}",location=head(args).location),
-            nilTypeModifierExpr(), [])),
-            if args.count == 1 then []
+  local count_s::String = toString(count);
+
+  return consStructItem(structItem([], directTypeExpr(head(args).typerep), 
+        consStructDeclarator(
+            structField(name(s"f${count_s}",location=head(args).location),
+            baseTypeExpr(), []), nilStructDeclarator())),
+            if length(args) == 1 then nilStructItem()
             else argsToStructItems(tail(args), count+1));
 }
