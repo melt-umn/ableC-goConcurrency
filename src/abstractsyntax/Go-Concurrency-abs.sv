@@ -109,7 +109,14 @@ top::Stmt ::= argList::[Expr] res::Expr
 function makeArgStruct
 Stmt::= args::[Expr] structName::String varName::String
 {	
-	return seqStmt(parseStmt(s"""malloc(sizeof(${structName}))"""),
+    local structExpr::Expr = parseExpr(s"""${structName}""");
+    local mallocExpr::Expr = directCallExpr(name("malloc", location=builtin),
+                               consExpr(directCallExpr(name("sizeof", location=builtin),consExpr(
+                                   structExpr, nilExpr()), location=builtin), nilExpr()), 
+                                   location=builtin);    
+                                 
+	return seqStmt(subStmt([declRefSubstitution("__mallocSize__", mallocExpr)],
+        parseStmt(s"""${structName} *${varName} = __mallocSize__""")),
                          fillArgs(args,varName, 0));
 }
 
@@ -117,7 +124,7 @@ function fillArgs
 Stmt::= args::[Expr] varName::String count::Integer
 {
    local count_s::String = toString(count);
-   local headStmt::Stmt = subStmt([exprsSubstitution("__expr__", consExpr(head(args),nilExpr()))],
+   local headStmt::Stmt = subStmt([declRefSubstitution("__expr__", head(args))],
                     parseStmt(s"""${varName}.f${count_s} = __expr__"""));
 
    return if length(args) == 1 then headStmt  

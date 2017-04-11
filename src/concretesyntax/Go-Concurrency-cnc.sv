@@ -9,10 +9,11 @@ marking terminal Arrow_t '<-' lexer classes{Ckeyword};
 marking terminal Open_t 'open' lexer classes {Ckeyword};
 marking terminal Close_t 'close' lexer classes {Ckeyword};
 terminal Chan_t 'chan';
-terminal Spawn_t 'spawn';
+marking terminal Spawn_t 'spawn' lexer classes {Ckeyword};
 terminal Select_t 'select';
 terminal Case_t 'case';
 terminal Default_t 'default';
+terminal Spawn_delim_t '@';
 
 concrete production open_c
 s::PrimaryExpr_c ::= Open_t Chan_t '<' t::TypeName_c '>'
@@ -39,7 +40,7 @@ s::Expr_c ::= ch::AssignExpr_c '<-' v::AssignExpr_c
 }
 
 concrete production spawn_function_c
-s::Stmt_c ::= Spawn_t lambda::Expr_c '(' args::ArgumentExprList_c ')'
+s::Stmt_c ::= Spawn_t '(' lambda::AssignExpr_c ',' args::ArgumentExprList_c ')' 
 { 
   s.ast = spawnFunction(args.ast, lambda.ast); 
 }
