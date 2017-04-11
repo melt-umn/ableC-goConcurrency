@@ -57,6 +57,7 @@ top::Expr ::= ch::Expr
 }
 
 global builtin::Location = builtinLoc("go_conc");
+global builtin2::Location = builtinLoc("go_conc2");
 
 abstract production spawnFunction
 top::Stmt ::= argList::[Expr] res::Expr
@@ -105,37 +106,11 @@ top::Stmt ::= argList::[Expr] res::Expr
   forwards to injectGlobalDeclsStmt (  globalDecls, actual_forwards );
 }
 
--- return a filled in struct of type structName with the given args
-function makeArgStruct
-Stmt::= args::[Expr] structName::String varName::String
-{	
-    local structExpr::Expr = parseExpr(s"""${structName}""");
-    local mallocExpr::Expr = directCallExpr(name("malloc", location=builtin),
-                               consExpr(directCallExpr(name("sizeof", location=builtin),consExpr(
-                                   structExpr, nilExpr()), location=builtin), nilExpr()), 
-                                   location=builtin);    
-                                 
-	return seqStmt(subStmt([declRefSubstitution("__mallocSize__", mallocExpr)],
-        parseStmt(s"""${structName} *${varName} = __mallocSize__""")),
-                         fillArgs(args,varName, 0));
-}
-
-function fillArgs
-Stmt::= args::[Expr] varName::String count::Integer
-{
-   local count_s::String = toString(count);
-   local headStmt::Stmt = subStmt([declRefSubstitution("__expr__", head(args))],
-                    parseStmt(s"""${varName}.f${count_s} = __expr__"""));
-
-   return if length(args) == 1 then headStmt  
-               else seqStmt(headStmt, fillArgs(tail(args),varName, count+1));
-}
-
 -- put all of the args from the struct and call the function
 function callFromStruct
 Stmt ::= funName::Name args::[Expr]
 { 
-   return exprStmt(directCallExpr(funName, paramsFromStruct(args, 0), location=builtin));  
+   return exprStmt(directCallExpr(funName, paramsFromStruct(args, 0), location=builtin2));  
 }
 
 function paramsFromStruct
@@ -159,4 +134,24 @@ StructItemList ::= args::[Expr] count::Integer
             baseTypeExpr(), []), nilStructDeclarator())),
             if length(args) == 1 then nilStructItem()
             else argsToStructItems(tail(args), count+1));
+}
+
+-- return a filled in struct of type structName with the given args
+function makeArgStruct
+Stmt::= args::[Expr] structName::String varName::String
+{	                             
+    return seqStmt(
+        parseStmt(s"""struct ${structName} *${varName} = malloc(sizeof(struct ${structName}));"""),
+                         fillArgs(args,varName, 0));
+}
+
+function fillArgs
+Stmt::= args::[Expr] varName::String count::Integer
+{
+   local count_s::String = toString(count);
+   local headStmt::Stmt = subStmt([declRefSubstitution("__expr__", head(args))],
+                    parseStmt(s"""${varName}->f${count_s} = __expr__;"""));
+
+   return if length(args) == 1 then headStmt  
+               else seqStmt(headStmt, fillArgs(tail(args),varName, count+1));
 }

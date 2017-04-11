@@ -5,7 +5,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 
-// spawn_routine
+// spawn_function
 // ---
 // Should begin some thread executing start_function 
 // concurrently with the thread it is called from. 
@@ -13,7 +13,11 @@
 // start_function: whatever function should begin executing
 // args: a pointer to the arguments start_function will take.
 //
-void spawn_routine(void*(*start_function) (void *), void *args);
+void spawn_function(void*(*start_function) (void *), void *args) {
+    pthread_t thread;
+    pthread_create(&thread, NULL, start_function, args );
+    return; 
+}
 
 // An OpQueue represents a linked list 
 // of waiting channel operations. 

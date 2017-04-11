@@ -10,4 +10,4 @@ int main(){
   chan_close<int>(ch);
 }
 
-void spawn_test(int a, b) {}
+void spawn_test(int a, int b) {}
