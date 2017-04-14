@@ -58,9 +58,11 @@ top::Expr ::= ch::Expr
 
 global builtin::Location = builtinLoc("go_conc");
 global builtin2::Location = builtinLoc("go_conc2");
+global builtin3::Location = builtinLoc("go_conc3");
+global builtin4::Location = builtinLoc("go_conc4");
 
 abstract production spawnFunction
-top::Stmt ::= argList::[Expr] res::Expr
+top::Stmt ::= argList::[Expr] origFunc::Expr
 {
   local args::Exprs = foldExpr(argList);
   local id::String = toString(genInt()); 
@@ -73,17 +75,18 @@ top::Stmt ::= argList::[Expr] res::Expr
         structDecl([],
           justName(name(argStructName, location=builtin)),
           argsToStructItems(argList, 0),
-          location=builtin)));
+          location=builtin2)));
   
   local funDcl::Decl =
-    subDecl(
-      [stmtSubstitution("__call__", callFromStruct(name(funName,location=builtin), argList))],
+    subDecl( 
+      [declRefSubstitution("__origFunc__", origFunc),
+       exprsSubstitution("__params__", paramsFromStruct(argList, 0))],
       decls(
         parseDecls(s"""
-            static void * ${funName}(void *_arg_ptr) {
+            static void *${funName}(void *_arg_ptr) {
                 struct ${argStructName} _env = 
                     *(struct ${argStructName}*)_arg_ptr;
-                __call__;
+                (__origFunc__)(__params__);
             }""")));
 
   local globalDecls::Decls = foldDecl([argStructDcl, funDcl]);
@@ -94,24 +97,24 @@ top::Stmt ::= argList::[Expr] res::Expr
   local actual_forwards::Stmt = seqStmt(
       makeArgStruct(argList,argStructName,structVarName),
         exprStmt(
-            directCallExpr(name("spawn_function",location=builtin),
+            directCallExpr(name("spawn_function",location=builtin4),
                 consExpr(
                     parseExpr(s"""${funName}"""), consExpr(
                         explicitCastExpr(typeName(
                             directTypeExpr(builtinType([],voidType())), 
                                 pointerTypeExpr([], baseTypeExpr())), 
-                            structVarExpr, location=builtin), 
-                        nilExpr())), location=builtin)));
+                            structVarExpr, location=builtin3), 
+                        nilExpr())), location=builtin3)));
 
   forwards to injectGlobalDeclsStmt (  globalDecls, actual_forwards );
 }
 
 -- put all of the args from the struct and call the function
-function callFromStruct
-Stmt ::= funName::Name args::[Expr]
-{ 
-   return exprStmt(directCallExpr(funName, paramsFromStruct(args, 0), location=builtin2));  
-}
+--function callFromStruct
+--Stmt ::= funName::Name args::[Expr]
+--{ 
+--   return exprStmt(directCallExpr(funName, paramsFromStruct(args, 0), location=builtin2));  
+--}
 
 function paramsFromStruct
 Exprs ::= args::[Expr] count::Integer

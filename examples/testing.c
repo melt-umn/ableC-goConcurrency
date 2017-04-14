@@ -363,6 +363,10 @@ extern signed int ftrylockfile(FILE  * __stream) __attribute__((__nothrow__, __l
 
 extern void funlockfile(FILE  * __stream) __attribute__((__nothrow__, __leaf__));
 
+extern signed long __sysconf(signed int  );
+
+typedef __clock_t clock_t;
+
 typedef __time_t time_t;
 
 struct timespec {
@@ -370,51 +374,6 @@ struct timespec {
   __syscall_slong_t tv_nsec;
   
 };
-
-typedef __pid_t pid_t;
-
-struct sched_param {
-  signed int __sched_priority;
-  
-};
-
-struct __sched_param {
-  signed int __sched_priority;
-  
-};
-
-typedef unsigned long __cpu_mask;
-
-typedef struct  {
-  __cpu_mask __bits[(1024 / ((8 * (sizeof(__cpu_mask)))))];
-  
-} cpu_set_t;
-
-extern signed int __sched_cpucount(size_t  __setsize, const cpu_set_t  * __setp) __attribute__((__nothrow__, __leaf__));
-
-extern cpu_set_t  *__sched_cpualloc(size_t  __count) __attribute__((__nothrow__, __leaf__));
-
-extern void __sched_cpufree(cpu_set_t  * __set) __attribute__((__nothrow__, __leaf__));
-
-extern signed int sched_setparam(__pid_t  __pid, const struct sched_param  * __param) __attribute__((__nothrow__, __leaf__));
-
-extern signed int sched_getparam(__pid_t  __pid, struct sched_param  * __param) __attribute__((__nothrow__, __leaf__));
-
-extern signed int sched_setscheduler(__pid_t  __pid, signed int  __policy, const struct sched_param  * __param) __attribute__((__nothrow__, __leaf__));
-
-extern signed int sched_getscheduler(__pid_t  __pid) __attribute__((__nothrow__, __leaf__));
-
-extern signed int sched_yield(void) __attribute__((__nothrow__, __leaf__));
-
-extern signed int sched_get_priority_max(signed int  __algorithm) __attribute__((__nothrow__, __leaf__));
-
-extern signed int sched_get_priority_min(signed int  __algorithm) __attribute__((__nothrow__, __leaf__));
-
-extern signed int sched_rr_get_interval(__pid_t  __pid, struct timespec  * __t) __attribute__((__nothrow__, __leaf__));
-
-extern signed long __sysconf(signed int  );
-
-typedef __clock_t clock_t;
 
 struct tm {
   signed int tm_sec;
@@ -468,6 +427,47 @@ extern char  *tzname[2];
 extern void tzset(void) __attribute__((__nothrow__, __leaf__));
 
 extern signed int timespec_get(struct timespec  * __ts, signed int  __base) __attribute__((__nothrow__, __leaf__)) __attribute__((__nonnull__(1)));
+
+typedef __pid_t pid_t;
+
+struct sched_param {
+  signed int __sched_priority;
+  
+};
+
+struct __sched_param {
+  signed int __sched_priority;
+  
+};
+
+typedef unsigned long __cpu_mask;
+
+typedef struct  {
+  __cpu_mask __bits[(1024 / ((8 * (sizeof(__cpu_mask)))))];
+  
+} cpu_set_t;
+
+extern signed int __sched_cpucount(size_t  __setsize, const cpu_set_t  * __setp) __attribute__((__nothrow__, __leaf__));
+
+extern cpu_set_t  *__sched_cpualloc(size_t  __count) __attribute__((__nothrow__, __leaf__));
+
+extern void __sched_cpufree(cpu_set_t  * __set) __attribute__((__nothrow__, __leaf__));
+
+extern signed int sched_setparam(__pid_t  __pid, const struct sched_param  * __param) __attribute__((__nothrow__, __leaf__));
+
+extern signed int sched_getparam(__pid_t  __pid, struct sched_param  * __param) __attribute__((__nothrow__, __leaf__));
+
+extern signed int sched_setscheduler(__pid_t  __pid, signed int  __policy, const struct sched_param  * __param) __attribute__((__nothrow__, __leaf__));
+
+extern signed int sched_getscheduler(__pid_t  __pid) __attribute__((__nothrow__, __leaf__));
+
+extern signed int sched_yield(void) __attribute__((__nothrow__, __leaf__));
+
+extern signed int sched_get_priority_max(signed int  __algorithm) __attribute__((__nothrow__, __leaf__));
+
+extern signed int sched_get_priority_min(signed int  __algorithm) __attribute__((__nothrow__, __leaf__));
+
+extern signed int sched_rr_get_interval(__pid_t  __pid, struct timespec  * __t) __attribute__((__nothrow__, __leaf__));
 
 typedef unsigned long pthread_t;
 
@@ -838,7 +838,15 @@ extern size_t mbstowcs(wchar_t  *__restrict  __pwcs, const char  *__restrict  __
 
 extern size_t wcstombs(char  *__restrict  __s, const wchar_t  *__restrict  __pwcs, size_t  __n) __attribute__((__nothrow__, __leaf__));
 
-void spawn_routine(void  *( * start_function)(void  * ), void  * args);
+void spawn_function(void  *( * start_function)(void  * ), void  * args)
+{
+
+  {
+    pthread_t thread;;
+    ((pthread_create)((&(thread)), (((void *)0)), (start_function), (args)));
+    return ;
+  }
+}
 
 typedef struct __OpQueue {
   pthread_cond_t  *cond;
@@ -900,7 +908,19 @@ void spawn_routine(void  *( * start_function)(void  * ), void  * args)
 
 
 
-typedef struct __attribute__(()) _template_Channel_builtin__signed_int_ {
+
+void  *spawn_test(signed int  a, signed int  b)
+{
+
+  {
+    ((printf)("%d,%d\n", (a), (b)));
+  }
+}
+
+typedef signed int _template_param_unused_29;
+
+typedef struct _template_Channel_builtin__signed_int_ _template_Channel_builtin__signed_int_;
+struct _template_Channel_builtin__signed_int_ {
   signed int v;
   signed int closed;
   OpQueue  *recvq;
@@ -908,9 +928,13 @@ typedef struct __attribute__(()) _template_Channel_builtin__signed_int_ {
   pthread_mutex_t lock;
   pthread_cond_t vcond;
   
-} _template_Channel_builtin__signed_int_;
+};
 
 
+
+
+
+typedef signed int _template_param_unused_31;
 
 static _template_Channel_builtin__signed_int_  *_template_chan_open_builtin__signed_int_()
 {
@@ -927,6 +951,23 @@ static _template_Channel_builtin__signed_int_  *_template_chan_open_builtin__sig
   }
 }
 
+struct _spawn_arg_28_s {
+  signed int f0;
+  signed int f1;
+  
+};
+static void  *_spawn_fn_28(void  * _arg_ptr)
+{
+
+  {
+    struct _spawn_arg_28_s _env = (*((struct _spawn_arg_28_s *)(_arg_ptr)));;
+    (((spawn_test))(((_env).f0), ((_env).f1)));
+  }
+}
+
+
+
+typedef signed int _template_param_unused_37;
 
 static signed int _template_try_chan_recv_builtin__signed_int_(_template_Channel_builtin__signed_int_  * ch)
 {
@@ -955,6 +996,9 @@ static signed int _template_try_chan_recv_builtin__signed_int_(_template_Channel
     return 0;
   }
 }
+
+typedef signed int _template_param_unused_33;
+
 static signed int _template_chan_recv_builtin__signed_int_(_template_Channel_builtin__signed_int_  * ch)
 {
 
@@ -988,6 +1032,9 @@ static signed int _template_chan_recv_builtin__signed_int_(_template_Channel_bui
   }
 }
 
+
+typedef signed int _template_param_unused_39;
+
 static void _template_chan_close_builtin__signed_int_(_template_Channel_builtin__signed_int_  * ch)
 {
 
@@ -1016,11 +1063,17 @@ static void _template_chan_close_builtin__signed_int_(_template_Channel_builtin_
   }
 }
 
+
 signed int main()
 {
 
   {
     _template_Channel_builtin__signed_int_  *ch = ((_template_chan_open_builtin__signed_int_)());;
+    struct _spawn_arg_28_s  *_spawn_struct_var_28_s = ((malloc)((sizeof(struct _spawn_arg_28_s))));;
+    (((_spawn_struct_var_28_s)->f0) = 5);
+    (((_spawn_struct_var_28_s)->f1) = 4);
+    ((spawn_function)((_spawn_fn_28), ((void *)(_spawn_struct_var_28_s))));
+    
     ((_template_chan_recv_builtin__signed_int_)((ch)));
     ((_template_chan_close_builtin__signed_int_)((ch)));
   }
