@@ -16,29 +16,28 @@ top::SelectCases ::= {
    top.errors := [];
    top.globalDecls := [];
    top.def = nothing();
-   top.body = exprStmt(nilExpr());
+   top.body = nullStmt();
 }
 
 abstract production chanCase 
 top::SelectCases ::= chexp::SelectExpr stm::Stmt sc::SelectCases {
    propagate host, lifted;
    top.pps = "chanExpr" ++ sc.pps;
-   top.errors = sc.errors;
-   top.globalDecls = sc.globalDecls;
-   top.env = sc.env;
+   top.errors := sc.errors;
+   top.globalDecls := sc.globalDecls;
    top.def = sc.def;
    top.body = seqStmt(
                 ifStmtNoElse(
                         chanCond(chexp),
                         seqStmt(stm,breakStmt())),
-                c.body);
+                sc.body);
 }
 
 
 abstract production chanCond 
 top::Expr ::= chExpr::SelectExpr 
 {
-  forwards to if chExpr.chanType == "receive" then tryRecieve(chExpr.chan)
+  forwards to if chExpr.chanType == "receive" then tryReceive(chExpr.chan)
     else if chExpr.chanType == "send" then trySend(chExpr.chan, chExpr.val)
      else tryAssign(chExpr.chan, chExpr.val);
 }
@@ -127,7 +126,7 @@ top::SelectCases ::= stm::Stmt sc::SelectCases {
    top.def = sc.def;
    top.body = sc.body;
 
-   top.def = case cs.def of 
+   top.def = case sc.def of 
        just(def) -> nothing()
      | nothing() -> just(seqStmt(stm, breakStmt())) end;
    
