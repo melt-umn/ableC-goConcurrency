@@ -172,6 +172,14 @@ int chan_recv_select(Channel<a> *ch, a *v) {
 }
 
 template<a>
+int chan_recv_select_drop(Channel<a> *ch, a *v) {
+    pthread_mutex_lock(&(ch->lock));
+    int success = try_chan_recv<a>(ch); 
+    pthread_mutex_unlock(&(ch->lock));
+    return success;
+}
+
+template<a>
 int try_chan_recv(Channel<a> *ch) {
     pthread_cond_t *send_cond = ch->sendq->cond;
     
