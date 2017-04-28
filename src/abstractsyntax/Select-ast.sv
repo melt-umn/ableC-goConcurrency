@@ -1,20 +1,11 @@
 grammar edu:umn:cs:melt:exts:ableC:goConcurrency:src:abstractsyntax;
 
-imports edu:umn:cs:melt:ableC:abstractsyntax;
-imports edu:umn:cs:melt:ableC:abstractsyntax:construction;
-imports edu:umn:cs:melt:ableC:abstractsyntax:construction:parsing;
-imports edu:umn:cs:melt:ableC:abstractsyntax:substitution;
-imports edu:umn:cs:melt:ableC:abstractsyntax:env;
-imports edu:umn:cs:melt:exts:ableC:templating:abstractsyntax as tmp;
-
-imports silver:langutil;
-
 nonterminal SelectExpr with location, pp, errors, value, chanType;
 nonterminal SelectCases with location, pps, errors, body, host<SelectCases>, lifted<SelectCases>, globalDecls, env, def<Maybe<Stmt>>;
 
 
 abstract production nilCase
-top::SelectCases ::= c::SelectCase {
+top::SelectCases ::= {
    propagate host, lifted;
    top.pps = [];
    top.errors = [];
@@ -133,10 +124,9 @@ top::SelectCases ::= stm::Stmt sc::SelectCases {
    top.body = sc.body;
 
    top.def = case cs.def of 
-       --just(def) -> (top.errors = "Multiple default statements in select" :: top.errors; nothing())
        just(def) -> nothing()
      | nothing() -> just(seqStmt(stm, breakStmt())) end;
    
-   top.errors = if top.def == nothing() then "Multiple default statements in select" :: top.errors
+   top.errors := if top.def == nothing() then "Multiple default statements in select" :: top.errors
                 else top.errors;
 }
