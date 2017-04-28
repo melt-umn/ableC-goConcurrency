@@ -9,89 +9,64 @@ imports edu:umn:cs:melt:exts:ableC:templating:abstractsyntax as tmp;
 
 imports silver:langutil;
 
-Nonterminal SelectExpr with location, pp, errors, value, chanType;
-Nonterminal SelectCases with location, pps, errors, body, host<SelectCases>, lifted<SelectCases>, globalDecls, env, default<Maybe<Stmt>>;
+nonterminal SelectExpr with location, pp, errors, value, chanType;
+nonterminal SelectCases with location, pps, errors, body, host<SelectCases>, lifted<SelectCases>, globalDecls, env, def<Maybe<Stmt>>;
 
 
 abstract production nilCase
 top::SelectCases ::= c::SelectCase {
-   Propagate host, lifted;
+   propagate host, lifted;
    top.pps = [];
    top.errors = [];
-    top.globalDecls = [];
-   Top.env = [];
-   Top.default = nothing();
-   Top.body = exprStmt(nilExpr());
+   top.globalDecls = [];
+   top.env = [];
+   top.def = nothing();
+   top.body = exprStmt(nilExpr());
 }
 
-Abstract production chanCase 
+abstract production chanCase 
 top::SelectCases ::= chexp::SelectExpr stm::Stmt sc::SelectCases {
    propagate host, lifted;
-   top.pps = “chanExpr” ++ sc.pps;
+   top.pps = "chanExpr" ++ sc.pps;
    top.errors = sc.errors;
    top.globalDecls = sc.globalDecls;
    top.env = sc.env;
-   top.default = sc.default;
+   top.def = sc.def;
    top.body = seqStmt(
-                         ifStmtNoElse(
-                                    chanCond(chexp),
-                                    seqStmt(stm,breakStmt()),
-                         c.body);
+                ifStmtNoElse(
+                        chanCond(chexp),
+                        seqStmt(stm,breakStmt())),
+                c.body);
 }
 
-abstract production defaultCase 
-top::SelectCases ::= stm::Stmt sc::SelectCases {
-   propagate host, lifted;
-   top.pps = “default” :: sc.pps;
-   top.errors = sc.errors;
-   top.globalDecls = sc.globalDecls;
-   top.env = sc.env;
-   top.default = sc.default;
-   top.body = sc.body;
-   Case top.default of 
-       just(def) -> top.errors = “Multiple default statements in select” :: top.errors;
-     | nothing() -> top.default = seqStmt(stm, breakStmt());
-}
-
-abstract production select
-top:Stmt ::= cs::SelectCases {
-  
-   Local body = case cs.default of 
-                 just(def) -> seqStmt(cs.body, cs.default) 
-               | nothing() -> cs.body
-     
-   Forwards to whileStmt(
-                                mkIntConst(1),
-                                body)  
-}
 
 abstract production chanCond 
 top::Expr ::= chExpr::SelectExpr 
 {
-  Forwards to if chExpr.chanType == “receive” then tryRecieve(chExpr.chan)
-    Else if chExpr.chanType == “send” then trySend(chExpr.chan, chExpr.val)
-     Else tryAssign(chExpr.chan, chExpr.val)
+  forwards to if chExpr.chanType == "receive" then tryRecieve(chExpr.chan)
+    else if chExpr.chanType == "send" then trySend(chExpr.chan, chExpr.val)
+     else tryAssign(chExpr.chan, chExpr.val);
 }
 
-Abstract production makeReceive
+abstract production makeReceive
 top::SelectExpr ::= ch::Expr
 {
-  top.chanType = “receive”;
+  top.chanType = "receive";
   top.chan = ch;
 }
 
-Abstract production makeSend
+abstract production makeSend
 top::SelectExpr ::= ch::Expr v::Expr
 {
-  top.chanType = "send”;
+  top.chanType = "send";
   top.chan = ch;
   top.value = v;
 }
 
-Abstract production makeAssign
+abstract production makeAssign
 top::SelectExpr ::= ch::Expr v::Expr
 {
-  top.chanType = “assign”;
+  top.chanType = "assign";
   top.chan = ch;
   top.value = v;
 }
@@ -121,7 +96,7 @@ top::Expr ::= ch::Expr v::Expr
           consExpr(ch, consExpr(v, nilExpr())), location=top.location);
 }
 
-Abstract production tryReceive
+abstract production tryReceive
 top::Expr ::= ch::Expr
 {
   local channelType::Type = channelSubType(ch.typerep, ch.env);
@@ -133,4 +108,35 @@ top::Expr ::= ch::Expr
                    nilTypeName()),location=top.location),
                                                -- this v needs to be the pointer to v!
           consExpr(ch, nilExpr()), location=top.location);
+}
+
+abstract production select
+top::Stmt ::= cs::SelectCases {
+  
+   local body::Stmt = case cs.def of 
+                 just(def) -> seqStmt(cs.body, cs.def) 
+               | nothing() -> cs.body end;
+     
+   forwards to whileStmt(
+                                mkIntConst(1),
+                                body);  
+}
+
+abstract production defaultCase 
+top::SelectCases ::= stm::Stmt sc::SelectCases {
+   propagate host, lifted;
+   top.pps = "default" :: sc.pps;
+   top.errors = sc.errors;
+   top.globalDecls = sc.globalDecls;
+   top.env = sc.env;
+   top.def = sc.def;
+   top.body = sc.body;
+
+   top.def = case cs.def of 
+       --just(def) -> (top.errors = "Multiple default statements in select" :: top.errors; nothing())
+       just(def) -> nothing()
+     | nothing() -> just(seqStmt(stm, breakStmt())) end;
+   
+   top.errors = if top.def == nothing() then "Multiple default statements in select" :: top.errors
+                else top.errors;
 }
