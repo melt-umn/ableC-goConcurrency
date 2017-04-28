@@ -10,7 +10,6 @@ marking terminal Open_t 'open' lexer classes {Ckeyword};
 marking terminal Close_t 'close' lexer classes {Ckeyword};
 terminal Chan_t 'chan';
 marking terminal Spawn_t 'spawn' lexer classes {Ckeyword};
-terminal Select_t 'select';
 terminal Case_t 'case';
 terminal Default_t 'default';
 terminal Spawn_delim_t '@';

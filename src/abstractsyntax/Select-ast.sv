@@ -1,16 +1,20 @@
 grammar edu:umn:cs:melt:exts:ableC:goConcurrency:src:abstractsyntax;
 
-nonterminal SelectExpr with location, pp, errors, value, chanType;
-nonterminal SelectCases with location, pps, errors, body, host<SelectCases>, lifted<SelectCases>, globalDecls, env, def<Maybe<Stmt>>;
+nonterminal SelectExpr with location, pp, errors, value, chanType, chan;
+nonterminal SelectCases with location, pps, errors, body, host<SelectCases>, lifted<SelectCases>, globalDecls, env, def;
 
+synthesized attribute value::Expr;
+synthesized attribute chan::Expr;
+synthesized attribute chanType::String;
+synthesized attribute body::Stmt;
+synthesized attribute def::Maybe<Stmt>;
 
 abstract production nilCase
 top::SelectCases ::= {
    propagate host, lifted;
    top.pps = [];
-   top.errors = [];
-   top.globalDecls = [];
-   top.env = [];
+   top.errors := [];
+   top.globalDecls := [];
    top.def = nothing();
    top.body = exprStmt(nilExpr());
 }
