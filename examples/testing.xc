@@ -10,7 +10,10 @@ void *spawn_test(int a, int b) {
 int main(){
   Channel<int>* ch = chan_open<int>();
   spawn(spawn_test, 5, 4);
-  (<-ch);
+  select {
+    case <-ch: printf("Channel One\n");
+    default: printf("Default\n");
+  }
   chan_close<int>(ch);
 }
 

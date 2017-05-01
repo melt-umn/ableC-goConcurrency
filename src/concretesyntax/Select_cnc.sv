@@ -3,13 +3,14 @@ grammar edu:umn:cs:melt:exts:ableC:goConcurrency:src:concretesyntax;
 closed nonterminal SelectExpr_c with location, ast<SelectExpr>;
 closed nonterminal SelectCases_c with location, ast<SelectCases>;
 marking terminal Select_t 'select' lexer classes{Ckeyword};
+marking terminal Test_t '<==' lexer classes{Ckeyword};
 
 concrete productions s::SelectExpr_c
-| '<-' ch::Expr_c
+| '<-' ch::AssignExpr_c
 {
   s.ast = makeReceive(ch.ast, location=s.location);
 }
-| v::AssignExpr_c '=' '<-' ch::Expr_c 
+| v::AssignExpr_c '<==' ch::AssignExpr_c 
 {
   s.ast = makeAssign(ch.ast, v.ast, location=s.location);
 }

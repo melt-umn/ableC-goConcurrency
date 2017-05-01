@@ -5,6 +5,7 @@
 
 build.xml
 *.jar
+*.html
 
 *.i
 *.o
