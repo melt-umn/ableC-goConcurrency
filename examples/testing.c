@@ -909,6 +909,8 @@ void spawn_routine(void  *( * start_function)(void  * ), void  * args)
 
 
 
+
+
 void  *spawn_test(signed int  a, signed int  b)
 {
 
@@ -999,36 +1001,14 @@ static signed int _template_try_chan_recv_builtin__signed_int_(_template_Channel
 
 typedef signed int _template_param_unused_33;
 
-static signed int _template_chan_recv_builtin__signed_int_(_template_Channel_builtin__signed_int_  * ch)
+static signed int _template_chan_recv_select_drop_builtin__signed_int_(_template_Channel_builtin__signed_int_  * ch)
 {
 
   {
     ((pthread_mutex_lock)((&(((ch)->lock)))));
-    if (((_template_try_chan_recv_builtin__signed_int_)((ch))))
-    {
-      {
-        signed int ret_v = ((ch)->v);;
-        ((pthread_mutex_unlock)((&(((ch)->lock)))));
-        return (ret_v);
-      }
-    } else {
-      
-    }
-    OpQueue  *recv_lock = ((ch)->recvq);;
-    while ((((recv_lock)->next) != (((void *)0))))
-    {
-      {
-        ((recv_lock) = ((recv_lock)->next));
-      }
-    }
-    (((recv_lock)->next) = ((_op_queue_new)()));
-    pthread_cond_t cond = {{0, 0, 0, 0, 0, ((void *)0), 0, 0}};;
-    (((recv_lock)->cond) = (&(cond)));
-    ((pthread_cond_wait)(((recv_lock)->cond), (&(((ch)->lock)))));
-    ((_op_queue_free)((recv_lock)));
-    signed int ret_v = ((ch)->v);;
+    signed int success = ((_template_try_chan_recv_builtin__signed_int_)((ch)));;
     ((pthread_mutex_unlock)((&(((ch)->lock)))));
-    return (ret_v);
+    return (success);
   }
 }
 
@@ -1074,7 +1054,19 @@ signed int main()
     (((_spawn_struct_var_28_s)->f1) = 4);
     ((spawn_function)((_spawn_fn_28), ((void *)(_spawn_struct_var_28_s))));
     
-    ((_template_chan_recv_builtin__signed_int_)((ch)));
+    while (1)
+    {
+      if (((_template_chan_recv_select_drop_builtin__signed_int_)((ch))))
+      {
+        ((printf)("Channel One\n"));
+        break;
+      } else {
+        
+      }
+      
+      ((printf)("Default\n"));
+      break;
+    }
     ((_template_chan_close_builtin__signed_int_)((ch)));
   }
 }

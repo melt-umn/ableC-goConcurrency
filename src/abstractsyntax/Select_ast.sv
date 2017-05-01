@@ -96,7 +96,6 @@ top::Expr ::= ch::Expr
           tmp:templateDeclRefExpr(name("chan_recv_select_drop",location=top.location), 
               consTypeName(typeName(directTypeExpr(channelType), baseTypeExpr()),
                    nilTypeName()),location=top.location),
-                                               -- this v needs to be the pointer to v!
           consExpr(ch, nilExpr()), location=top.location);
 }
 
