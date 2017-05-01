@@ -1,7 +1,7 @@
 grammar edu:umn:cs:melt:exts:ableC:goConcurrency:src:abstractsyntax;
 
 nonterminal SelectExpr with location, pp, errors, value, chanType, chan;
-nonterminal SelectCases with location, pps, errors, body, host<SelectCases>, lifted<SelectCases>, globalDecls, env, def;
+nonterminal SelectCases with location, pp, errors, body, lifted<SelectCases>, globalDecls, env, def;
 
 synthesized attribute value::Expr;
 synthesized attribute chan::Expr;
@@ -11,9 +11,7 @@ synthesized attribute def::Maybe<Stmt>;
 
 abstract production nilCase
 top::SelectCases ::= {
-   propagate host, lifted;
-   top.pps = [];
-   top.errors := [];
+   propagate lifted;
    top.globalDecls := [];
    top.def = nothing();
    top.body = nullStmt();
@@ -21,14 +19,12 @@ top::SelectCases ::= {
 
 abstract production chanCase 
 top::SelectCases ::= chexp::SelectExpr stm::Stmt sc::SelectCases {
-   propagate host, lifted;
-   top.pps = "chanExpr" ++ sc.pps;
-   top.errors := sc.errors;
+   propagate lifted;
    top.globalDecls := sc.globalDecls;
    top.def = sc.def;
    top.body = seqStmt(
                 ifStmtNoElse(
-                        chanCond(chexp),
+                        chanCond(chexp, location=top.location),
                         seqStmt(stm,breakStmt())),
                 sc.body);
 }
@@ -37,9 +33,9 @@ top::SelectCases ::= chexp::SelectExpr stm::Stmt sc::SelectCases {
 abstract production chanCond 
 top::Expr ::= chExpr::SelectExpr 
 {
-  forwards to if chExpr.chanType == "receive" then tryReceive(chExpr.chan)
-    else if chExpr.chanType == "send" then trySend(chExpr.chan, chExpr.val)
-     else tryAssign(chExpr.chan, chExpr.val);
+  forwards to if chExpr.chanType == "receive" then tryReceive(chExpr.chan, location=top.location)
+    else if chExpr.chanType == "send" then trySend(chExpr.chan, chExpr.value, location=top.location)
+     else tryAssign(chExpr.chan, chExpr.value, location=top.location);
 }
 
 abstract production makeReceive
@@ -108,28 +104,23 @@ abstract production select
 top::Stmt ::= cs::SelectCases {
   
    local body::Stmt = case cs.def of 
-                 just(def) -> seqStmt(cs.body, cs.def) 
+                 just(def) -> seqStmt(cs.body, def) 
                | nothing() -> cs.body end;
      
    forwards to whileStmt(
-                                mkIntConst(1),
+                                mkIntConst(1, cs.location),
                                 body);  
 }
 
 abstract production defaultCase 
 top::SelectCases ::= stm::Stmt sc::SelectCases {
-   propagate host, lifted;
-   top.pps = "default" :: sc.pps;
-   top.errors = sc.errors;
-   top.globalDecls = sc.globalDecls;
-   top.env = sc.env;
-   top.def = sc.def;
+   propagate lifted;
    top.body = sc.body;
 
    top.def = case sc.def of 
-       just(def) -> nothing()
+       just(def) -> sc.def
      | nothing() -> just(seqStmt(stm, breakStmt())) end;
    
-   top.errors := if top.def == nothing() then "Multiple default statements in select" :: top.errors
-                else top.errors;
+   --top.errors := if top.def == nothing() then "Multiple default statements in select" :: top.errors
+   --             else top.errors;
 }
