@@ -9,21 +9,22 @@ Channel<int>* ch2;
 void *spawn_test1(int a, int b) {
   printf("%d,%d\n",a,b);
   int i = 0;
-  while(i < 1000000000){i++;}
-  chan_send<int>(ch1, a);
+  while(i < 2000000000){i++;}
+  ch1 <- 1;
 }
 
 void *spawn_test2(int a, int b) {
   printf("%d,%d\n",a,b);
   int i = 0;
-  while(i < 2000000000){i++;}
-  chan_send<int>(ch2, a);
+  while(i < 1000000000){i++;}
+  ch2 <- 1;
 }
 
 int main(){
   ch1 = chan_open<int>();
   ch2 = chan_open<int>();
-  spawn(spawn_test1, 1, 2);
+  int cow = 25;
+  spawn(spawn_test1, cow, 2);
   spawn(spawn_test2, 3, 4);
   int i;
   for(i = 0; i < 2; i++){

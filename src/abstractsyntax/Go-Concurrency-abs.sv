@@ -71,7 +71,7 @@ top::Stmt ::= argList::[Expr] origFunc::Expr
       structTypeExpr([],
         structDecl([],
           justName(name(argStructName, location=builtin)),
-          argsToStructItems(argList, 0),
+          argsToStructItems(argList, 0, openScope(top.env)),
           location=builtin)));
   
   local funDcl::Decl =
@@ -117,16 +117,19 @@ Exprs ::= args::[Expr] count::Integer
 
 -- returns a list of struct items from the list of arguments passed in
 function argsToStructItems
-StructItemList ::= args::[Expr] count::Integer
+StructItemList ::= args::[Expr] count::Integer e::Decorated Env
 {
   local count_s::String = toString(count);
+  
+  local h::Expr = head(args);
+  h.env = e;
 
-  return consStructItem(structItem([], directTypeExpr(head(args).typerep), 
+  return consStructItem(structItem([], directTypeExpr(h.typerep), 
         consStructDeclarator(
             structField(name(s"f${count_s}",location=head(args).location),
             baseTypeExpr(), []), nilStructDeclarator())),
             if length(args) == 1 then nilStructItem()
-            else argsToStructItems(tail(args), count+1));
+            else argsToStructItems(tail(args), count+1, e));
 }
 
 -- return a filled in struct of type structName with the given args
