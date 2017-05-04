@@ -911,15 +911,7 @@ void spawn_routine(void  *( * start_function)(void  * ), void  * args)
 
 
 
-void  *spawn_test(signed int  a, signed int  b)
-{
-
-  {
-    ((printf)("%d,%d\n", (a), (b)));
-  }
-}
-
-typedef signed int _template_param_unused_29;
+typedef signed int _template_param_unused_28;
 
 typedef struct _template_Channel_builtin__signed_int_ _template_Channel_builtin__signed_int_;
 struct _template_Channel_builtin__signed_int_ {
@@ -935,8 +927,87 @@ struct _template_Channel_builtin__signed_int_ {
 
 
 
+typedef signed int _template_param_unused_33;
 
-typedef signed int _template_param_unused_31;
+static signed int _template_try_chan_send_builtin__signed_int_(_template_Channel_builtin__signed_int_  * ch, signed int  v)
+{
+
+  {
+    pthread_cond_t  *recv_cond = (((ch)->recvq)->cond);;
+    if (((recv_cond) != (((void *)0))))
+    {
+      {
+        (((ch)->recvq) = (((ch)->recvq)->next));
+        if ((((ch)->recvq) == (((void *)0))))
+        {
+          {
+            (((ch)->recvq) = ((_op_queue_new)()));
+          }
+        } else {
+          
+        }
+        (((ch)->v) = (v));
+        ((pthread_cond_signal)((recv_cond)));
+        return 1;
+      }
+    } else {
+      
+    }
+    
+    return 0;
+  }
+}
+
+typedef signed int _template_param_unused_29;
+
+static void _template_chan_send_builtin__signed_int_(_template_Channel_builtin__signed_int_  * ch, signed int  v)
+{
+
+  {
+    ((pthread_mutex_lock)((&(((ch)->lock)))));
+    if (((_template_try_chan_send_builtin__signed_int_)((ch), (v))))
+    {
+      {
+        ((pthread_mutex_unlock)((&(((ch)->lock)))));
+        return ;
+      }
+    } else {
+      
+    }
+    OpQueue  *send_lock = ((ch)->sendq);;
+    while ((((send_lock)->next) != (((void *)0))))
+    {
+      {
+        ((send_lock) = ((send_lock)->next));
+      }
+    }
+    (((send_lock)->next) = ((_op_queue_new)()));
+    pthread_cond_t cond = {{0, 0, 0, 0, 0, ((void *)0), 0, 0}};;
+    (((send_lock)->cond) = (&(cond)));
+    ((pthread_cond_wait)(((send_lock)->cond), (&(((ch)->lock)))));
+    ((_op_queue_free)((send_lock)));
+    (((ch)->v) = (v));
+    ((pthread_cond_signal)((&(((ch)->vcond)))));
+    ((pthread_mutex_unlock)((&(((ch)->lock)))));
+    return ;
+  }
+}
+
+
+void  *spawn_test(_template_Channel_builtin__signed_int_  * ch, signed int  a, signed int  b)
+{
+
+  {
+    ((printf)("%d,%d\n", (a), (b)));
+    ((printf)("End spawn test\n"));
+    ((_template_chan_send_builtin__signed_int_)((ch), 0));
+  }
+}
+
+
+
+
+typedef signed int _template_param_unused_36;
 
 static _template_Channel_builtin__signed_int_  *_template_chan_open_builtin__signed_int_()
 {
@@ -953,23 +1024,24 @@ static _template_Channel_builtin__signed_int_  *_template_chan_open_builtin__sig
   }
 }
 
-struct _spawn_arg_28_s {
-  signed int f0;
+struct _spawn_arg_34_s {
+  _template_Channel_builtin__signed_int_  *f0;
   signed int f1;
+  signed int f2;
   
 };
-static void  *_spawn_fn_28(void  * _arg_ptr)
+static void  *_spawn_fn_34(void  * _arg_ptr)
 {
 
   {
-    struct _spawn_arg_28_s _env = (*((struct _spawn_arg_28_s *)(_arg_ptr)));;
-    (((spawn_test))(((_env).f0), ((_env).f1)));
+    struct _spawn_arg_34_s _env = (*((struct _spawn_arg_34_s *)(_arg_ptr)));;
+    (((spawn_test))(((_env).f0), ((_env).f1), ((_env).f2)));
   }
 }
 
 
 
-typedef signed int _template_param_unused_37;
+typedef signed int _template_param_unused_42;
 
 static signed int _template_try_chan_recv_builtin__signed_int_(_template_Channel_builtin__signed_int_  * ch)
 {
@@ -999,7 +1071,7 @@ static signed int _template_try_chan_recv_builtin__signed_int_(_template_Channel
   }
 }
 
-typedef signed int _template_param_unused_33;
+typedef signed int _template_param_unused_38;
 
 static signed int _template_chan_recv_select_drop_builtin__signed_int_(_template_Channel_builtin__signed_int_  * ch)
 {
@@ -1013,7 +1085,7 @@ static signed int _template_chan_recv_select_drop_builtin__signed_int_(_template
 }
 
 
-typedef signed int _template_param_unused_39;
+typedef signed int _template_param_unused_44;
 
 static void _template_chan_close_builtin__signed_int_(_template_Channel_builtin__signed_int_  * ch)
 {
@@ -1049,10 +1121,11 @@ signed int main()
 
   {
     _template_Channel_builtin__signed_int_  *ch = ((_template_chan_open_builtin__signed_int_)());;
-    struct _spawn_arg_28_s  *_spawn_struct_var_28_s = ((malloc)((sizeof(struct _spawn_arg_28_s))));;
-    (((_spawn_struct_var_28_s)->f0) = 5);
-    (((_spawn_struct_var_28_s)->f1) = 4);
-    ((spawn_function)((_spawn_fn_28), ((void *)(_spawn_struct_var_28_s))));
+    struct _spawn_arg_34_s  *_spawn_struct_var_34_s = ((malloc)((sizeof(struct _spawn_arg_34_s))));;
+    (((_spawn_struct_var_34_s)->f0) = (ch));
+    (((_spawn_struct_var_34_s)->f1) = 5);
+    (((_spawn_struct_var_34_s)->f2) = 4);
+    ((spawn_function)((_spawn_fn_34), ((void *)(_spawn_struct_var_34_s))));
     
     while (1)
     {
@@ -1064,8 +1137,6 @@ signed int main()
         
       }
       
-      ((printf)("Default\n"));
-      break;
     }
     ((_template_chan_close_builtin__signed_int_)((ch)));
   }

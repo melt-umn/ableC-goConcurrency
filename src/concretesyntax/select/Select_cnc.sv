@@ -1,9 +1,16 @@
-grammar edu:umn:cs:melt:exts:ableC:goConcurrency:src:concretesyntax;
+grammar edu:umn:cs:melt:exts:ableC:goConcurrency:src:concretesyntax:select;
+
+imports edu:umn:cs:melt:exts:ableC:goConcurrency:src:concretesyntax:arrow;
+imports edu:umn:cs:melt:ableC:concretesyntax;
+imports silver:langutil only ast; 
+
+imports edu:umn:cs:melt:exts:ableC:goConcurrency:src:abstractsyntax;
 
 closed nonterminal SelectExpr_c with location, ast<SelectExpr>;
 closed nonterminal SelectCases_c with location, ast<SelectCases>;
+
 marking terminal Select_t 'select' lexer classes{Ckeyword};
-marking terminal Test_t '<==' lexer classes{Ckeyword};
+terminal Test_t '<==' lexer classes{Ckeyword};
 
 concrete productions s::SelectExpr_c
 | '<-' ch::PrimaryExpr_c
