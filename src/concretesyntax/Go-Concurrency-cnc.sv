@@ -21,19 +21,19 @@ s::PrimaryExpr_c ::= Open_t Chan_t '<' t::TypeName_c '>'
 }
 
 concrete production close_c
-s::PrimaryExpr_c ::= Close_t '(' e::AssignExpr_c ')'
+s::PrimaryExpr_c ::= Close_t '(' e::PrimaryExpr_c ')'
 {
   s.ast = close(e.ast, location=s.location);
 }
 
 concrete production recieveFrom_c
-s::PrimaryExpr_c ::= '(' '<-' ch::Expr_c ')'
+s::UnaryExpr_c ::= '<-' ch::PrimaryExpr_c
 {
   s.ast = recieve(ch.ast, location=s.location);
 }
 
 concrete production sendTo_c
-s::Expr_c ::= ch::AssignExpr_c '<-' v::AssignExpr_c
+s::AssignExpr_c ::= ch::PrimaryExpr_c '<-' v::PrimaryExpr_c
 {
   s.ast = send(ch.ast, v.ast, location=s.location);
 }

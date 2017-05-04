@@ -6,15 +6,15 @@ marking terminal Select_t 'select' lexer classes{Ckeyword};
 marking terminal Test_t '<==' lexer classes{Ckeyword};
 
 concrete productions s::SelectExpr_c
-| '<-' ch::AssignExpr_c
+| '<-' ch::PrimaryExpr_c
 {
   s.ast = makeReceive(ch.ast, location=s.location);
 }
-| v::AssignExpr_c '<==' ch::AssignExpr_c 
+| v::PrimaryExpr_c '<==' ch::PrimaryExpr_c 
 {
   s.ast = makeAssign(ch.ast, v.ast, location=s.location);
 }
-| ch::AssignExpr_c '<-' v::AssignExpr_c
+| ch::PrimaryExpr_c '<-' v::PrimaryExpr_c
 {   
   s.ast = makeSend(ch.ast, v.ast, location=s.location);
 }

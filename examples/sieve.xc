@@ -18,7 +18,7 @@ void *generate(Channel<int>* ch) {
 // removing those divisible by 'prime'.
 void *filter(Channel<int>* in, Channel<int>* out, int prime) {
     while (1) {
-        int i = ( <- in ); 
+        int i = <-in; 
         if ((i % prime) != 0) {
           out <- i; 
         }
@@ -31,7 +31,7 @@ int main( int argc, char** argv ) {
     spawn(generate, ch);
     int i;
     for (i = 1; i < 1001; i++) {
-		int prime = ( <- ch );
+		int prime = <-ch;
         printf("The %dth prime is: %d\n", i, prime);
         Channel<int>* ch1 = chan_open<int>();
         spawn(filter, ch, ch1, prime);
