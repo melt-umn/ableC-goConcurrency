@@ -21,7 +21,7 @@ s::UnaryExpr_c ::= '<-' ch::PrimaryExpr_c
 }
 
 concrete production sendTo_c
-s::AssignExpr_c ::= ch::PrimaryExpr_c '<-' v::PrimaryExpr_c
+s::AssignExpr_c ::= ch::PrimaryExpr_c a::ArrowOp_c v::PrimaryExpr_c
 {
   s.ast = send(ch.ast, v.ast, location=s.location);
 }
