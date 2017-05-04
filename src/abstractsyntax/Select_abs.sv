@@ -1,5 +1,7 @@
 grammar edu:umn:cs:melt:exts:ableC:goConcurrency:src:abstractsyntax;
 
+imports silver:langutil:pp;
+
 nonterminal SelectExpr with location, pp, errors, value, chanType, chan;
 nonterminal SelectCases with location, pp, errors, body, lifted<SelectCases>, globalDecls, env, def;
 
@@ -12,6 +14,8 @@ synthesized attribute def::Maybe<Stmt>;
 abstract production nilCase
 top::SelectCases ::= {
    propagate lifted;
+   top.pp = text("");
+   top.errors := [];
    top.globalDecls := [];
    top.def = nothing();
    top.body = nullStmt();
@@ -22,6 +26,7 @@ top::SelectCases ::= chexp::SelectExpr stm::Stmt sc::SelectCases {
    propagate lifted;
    top.globalDecls := sc.globalDecls;
    top.def = sc.def;
+   sc.env = top.env;
    top.body = seqStmt(
                 ifStmtNoElse(
                         chanCond(chexp, location=top.location),
