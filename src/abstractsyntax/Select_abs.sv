@@ -62,13 +62,16 @@ top::Expr ::= ch::Expr v::Expr
 {
   local channelType::Type = channelSubType(ch.typerep, ch.env);
 
+  local vpointer::Expr = subExpr([declRefSubstitution("__expr__", v)],
+                    parseExpr(s"""&__expr__"""));
+
   forwards to 
       callExpr(
           tmp:templateDeclRefExpr(name("chan_recv_select",location=top.location), 
               consTypeName(typeName(directTypeExpr(channelType), baseTypeExpr()),
                    nilTypeName()),location=top.location),
                                                -- this v needs to be the pointer to v!
-          consExpr(ch, consExpr(v, nilExpr())), location=top.location);
+          consExpr(ch, consExpr(vpointer, nilExpr())), location=top.location);
 }
 
 abstract production tryReceive
@@ -131,8 +134,7 @@ top::SelectCases ::= stm::Stmt sc::SelectCases {
        just(def) -> nothing()
      | nothing() -> just(seqStmt(stm, breakStmt())) end;
    
-   top.errors := sc.errors;
-   --top.errors <- case top.def of
-   --  nothing() then "Multiple default statements in select" ++ top.errors
-   --             else top.errors;
+   top.errors <- case top.def of
+       nothing() -> [err(top.location, "Multiple default statements in select")] ++ sc.errors
+     | just(d) -> sc.errors end;
 }

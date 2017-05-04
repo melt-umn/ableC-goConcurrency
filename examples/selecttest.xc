@@ -27,9 +27,10 @@ int main(){
   spawn(spawn_test1, cow, 2);
   spawn(spawn_test2, 3, 4);
   int i;
+  int j;
   for(i = 0; i < 2; i++){
     select {
-      case <-ch1: printf("Channel One\n");
+      case j <== ch1: printf("Channel %d\n", j);
       case <-ch2: printf("Channel Two\n");
     }
   }

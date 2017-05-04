@@ -921,6 +921,10 @@ struct _template_Channel__builtin_signed_int_ {
   pthread_cond_t vcond;
   
 };
+
+_template_Channel__builtin_signed_int_  *ch1;
+
+_template_Channel__builtin_signed_int_  *ch2;
 typedef signed int _template_param_unused_35;
 typedef signed int _template_param_unused_39;
 static signed int _template_try_chan_send__builtin_signed_int_(_template_Channel__builtin_signed_int_  * ch, signed int  v)
@@ -984,16 +988,38 @@ static void _template_chan_send__builtin_signed_int_(_template_Channel__builtin_
   }
 }
 
-void  *spawn_test(_template_Channel__builtin_signed_int_  * ch, signed int  a, signed int  b)
+void  *spawn_test1(signed int  a, signed int  b)
 {
 
   {
     ((printf)("%d,%d\n", (a), (b)));
-    ((printf)("End spawn test\n"));
-    ((_template_chan_send__builtin_signed_int_)((ch), 0));
+    signed int i = 0;;
+    while (((i) < 2000000000))
+    {
+      {
+        ((i)++);
+      }
+    }
+    ((_template_chan_send__builtin_signed_int_)((ch1), 1));
   }
 }
-typedef signed int _template_param_unused_44;
+
+void  *spawn_test2(signed int  a, signed int  b)
+{
+
+  {
+    ((printf)("%d,%d\n", (a), (b)));
+    signed int i = 0;;
+    while (((i) < 1000000000))
+    {
+      {
+        ((i)++);
+      }
+    }
+    ((_template_chan_send__builtin_signed_int_)((ch2), 1));
+  }
+}
+typedef signed int _template_param_unused_49;
 static _template_Channel__builtin_signed_int_  *_template_chan_open__builtin_signed_int_()
 {
 
@@ -1009,9 +1035,8 @@ static _template_Channel__builtin_signed_int_  *_template_chan_open__builtin_sig
   }
 }
 struct _spawn_arg_40_s {
-  _template_Channel__builtin_signed_int_  *f0;
+  signed int f0;
   signed int f1;
-  signed int f2;
   
 };
 static void  *_spawn_fn_40(void  * _arg_ptr)
@@ -1019,11 +1044,24 @@ static void  *_spawn_fn_40(void  * _arg_ptr)
 
   {
     struct _spawn_arg_40_s _env = (*((struct _spawn_arg_40_s *)(_arg_ptr)));;
-    (((spawn_test))(((_env).f0), ((_env).f1), ((_env).f2)));
+    (((spawn_test1))(((_env).f0), ((_env).f1)));
   }
 }
-typedef signed int _template_param_unused_51;
-typedef signed int _template_param_unused_55;
+struct _spawn_arg_41_s {
+  signed int f0;
+  signed int f1;
+  
+};
+static void  *_spawn_fn_41(void  * _arg_ptr)
+{
+
+  {
+    struct _spawn_arg_41_s _env = (*((struct _spawn_arg_41_s *)(_arg_ptr)));;
+    (((spawn_test2))(((_env).f0), ((_env).f1)));
+  }
+}
+typedef signed int _template_param_unused_57;
+typedef signed int _template_param_unused_61;
 static signed int _template_try_chan_recv__builtin_signed_int_(_template_Channel__builtin_signed_int_  * ch)
 {
 
@@ -1051,6 +1089,25 @@ static signed int _template_try_chan_recv__builtin_signed_int_(_template_Channel
     return 0;
   }
 }
+static signed int _template_chan_recv_select__builtin_signed_int_(_template_Channel__builtin_signed_int_  * ch, signed int  * v)
+{
+
+  {
+    ((pthread_mutex_lock)((&(((ch)->lock)))));
+    signed int success = ((_template_try_chan_recv__builtin_signed_int_)((ch)));;
+    if ((success))
+    {
+      {
+        ((*(v)) = ((ch)->v));
+      }
+    } else {
+      
+    }
+    ((pthread_mutex_unlock)((&(((ch)->lock)))));
+    return (success);
+  }
+}
+typedef signed int _template_param_unused_63;
 static signed int _template_chan_recv_select_drop__builtin_signed_int_(_template_Channel__builtin_signed_int_  * ch)
 {
 
@@ -1061,7 +1118,7 @@ static signed int _template_chan_recv_select_drop__builtin_signed_int_(_template
     return (success);
   }
 }
-typedef signed int _template_param_unused_59;
+typedef signed int _template_param_unused_67;
 static void _template_chan_close__builtin_signed_int_(_template_Channel__builtin_signed_int_  * ch)
 {
 
@@ -1094,24 +1151,45 @@ signed int main()
 {
 
   {
-    _template_Channel__builtin_signed_int_  *ch = ((_template_chan_open__builtin_signed_int_)());;
+    ((ch1) = ((_template_chan_open__builtin_signed_int_)()));
+    ((ch2) = ((_template_chan_open__builtin_signed_int_)()));
+    signed int cow = 25;;
     struct _spawn_arg_40_s  *_spawn_struct_var_40_s = ((malloc)((sizeof(struct _spawn_arg_40_s))));;
-    (((_spawn_struct_var_40_s)->f0) = (ch));
-    (((_spawn_struct_var_40_s)->f1) = 5);
-    (((_spawn_struct_var_40_s)->f2) = 4);
+    (((_spawn_struct_var_40_s)->f0) = (cow));
+    (((_spawn_struct_var_40_s)->f1) = 2);
     ((spawn_function)((_spawn_fn_40), ((void *)(_spawn_struct_var_40_s))));
     
-    while (1)
+    struct _spawn_arg_41_s  *_spawn_struct_var_41_s = ((malloc)((sizeof(struct _spawn_arg_41_s))));;
+    (((_spawn_struct_var_41_s)->f0) = 3);
+    (((_spawn_struct_var_41_s)->f1) = 4);
+    ((spawn_function)((_spawn_fn_41), ((void *)(_spawn_struct_var_41_s))));
+    
+    signed int i;;
+    signed int j;;
+    for(((i) = 0); ((i) < 2); ((i)++))
     {
-      if (((_template_chan_recv_select_drop__builtin_signed_int_)((ch))))
       {
-        ((printf)("Channel One\n"));
-        break;
-      } else {
-        
+        while (1)
+        {
+          if (((_template_chan_recv_select__builtin_signed_int_)((ch1), (&(j)))))
+          {
+            ((printf)("Channel %d\n", (j)));
+            break;
+          } else {
+            
+          }
+          if (((_template_chan_recv_select_drop__builtin_signed_int_)((ch2))))
+          {
+            ((printf)("Channel Two\n"));
+            break;
+          } else {
+            
+          }
+          
+        }
       }
-      
     }
-    ((_template_chan_close__builtin_signed_int_)((ch)));
+    ((_template_chan_close__builtin_signed_int_)((ch1)));
+    ((_template_chan_close__builtin_signed_int_)((ch2)));
   }
 }

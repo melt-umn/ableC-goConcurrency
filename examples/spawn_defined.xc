@@ -6,7 +6,7 @@
 void *printTwice (Channel<int>* ch2, int b) {
     printf("Spawned Print\n");
     ch2 <- 1;
-    printf("Third Print\n");
+    printf("Race Print\n");
 }
 
 int main () {
@@ -14,6 +14,6 @@ int main () {
   Channel<int>* ch = chan_open<int>();
   spawn(printTwice, ch, 4);
   printf("Second Print\n");
-  (<-ch);
+  <-ch;
   return 0; 
 }

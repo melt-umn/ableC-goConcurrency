@@ -1,9 +1,4 @@
-Checking For Errors.
 Errors for : edu:umn:cs:melt:exts:ableC:goConcurrency:src:abstractsyntax :
-
-Spawn_abs.sv:71:66: warning: Access of syn attribute typerep on h requires missing inherited attributes edu:umn:cs:melt:ableC:abstractsyntax:returnType to be supplied
-
-// I don't know what these errors mean
 Spawn_abs.sv:5:0: warning: Implicit forward copy equation for attribute edu:umn:cs:melt:ableC:abstractsyntax:substitution:substituted in production edu:umn:cs:melt:exts:ableC:goConcurrency:src:abstractsyntax:spawnFunction exceeds flow type because the forward depends on edu:umn:cs:melt:ableC:abstractsyntax:env:env
 Spawn_abs.sv:5:0: warning: Implicit forward copy equation for attribute silver:langutil:pp in production edu:umn:cs:melt:exts:ableC:goConcurrency:src:abstractsyntax:spawnFunction exceeds flow type because the forward depends on edu:umn:cs:melt:ableC:abstractsyntax:env:env
 Select_abs.sv:49:0: warning: Implicit forward copy equation for attribute edu:umn:cs:melt:ableC:abstractsyntax:substitution:substituted in production edu:umn:cs:melt:exts:ableC:goConcurrency:src:abstractsyntax:trySend exceeds flow type because the forward depends on edu:umn:cs:melt:ableC:abstractsyntax:env:env, edu:umn:cs:melt:ableC:abstractsyntax:returnType

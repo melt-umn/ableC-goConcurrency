@@ -66,6 +66,7 @@ StructItemList ::= args::[Expr] count::Integer e::Decorated Env
   local count_s::String = toString(count);
   
   local h::Expr = head(args);
+  h.returnType = h.returnType;
   h.env = e;
 
   return consStructItem(structItem(nilAttribute(), directTypeExpr(h.typerep), 

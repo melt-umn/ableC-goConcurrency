@@ -1,17 +1,21 @@
 #include <stdio.h>
+#include "../lib/go_concurrency.xh"
+#include <stdlib.h>
+#include <pthread.h>
+
+void *example (Channel<char>* ch2) {
+    ch2 <- 'k';
+}
 
 int main (int argc, char **argv) {
 
-  chan int ch = open chan;
+  Channel<char>* ch = chan_open<char>();
 
-  spawn example(ch);
+  spawn(example,ch);
 
-  char j = <-ch;
+  double *j = <-ch;
+
+  printf("%f\n", *j);
 
   return 0; 
-}
-
-int example (chan int ch2) {
-    ch2 <- 1;
-    return 0;
 }
