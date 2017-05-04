@@ -3,7 +3,7 @@ grammar edu:umn:cs:melt:exts:ableC:goConcurrency:src:abstractsyntax;
 imports silver:langutil:pp;
 
 nonterminal SelectExpr with location, pp, value, chanType, chan;
-nonterminal SelectCases with location, pp, errors, body, lifted<SelectCases>, globalDecls, env, def;
+nonterminal SelectCases with location, pp, errors, body, globalDecls, env, def;
 
 synthesized attribute value::Expr;
 synthesized attribute chan::Expr;
@@ -99,7 +99,6 @@ top::Stmt ::= cs::SelectCases {
 
 abstract production nilCase
 top::SelectCases ::= {
-   propagate lifted;
    top.pp = text("");
    top.errors := [];
    top.globalDecls := [];
@@ -109,7 +108,6 @@ top::SelectCases ::= {
 
 abstract production chanCase 
 top::SelectCases ::= chexp::SelectExpr stm::Stmt sc::SelectCases {
-   propagate lifted;
    top.globalDecls := sc.globalDecls;
    top.def = sc.def;
    top.pp = ppConcat([chexp.pp, sc.pp]);
@@ -125,7 +123,7 @@ top::SelectCases ::= chexp::SelectExpr stm::Stmt sc::SelectCases {
 
 abstract production defaultCase 
 top::SelectCases ::= stm::Stmt sc::SelectCases {
-   propagate lifted;
+  top.globalDecls := sc.globalDecls;
    top.body = sc.body;
    top.pp = ppConcat([text("default,"), sc.pp]);
 
