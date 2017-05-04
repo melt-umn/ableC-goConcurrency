@@ -2,7 +2,7 @@ grammar edu:umn:cs:melt:exts:ableC:goConcurrency:src:abstractsyntax;
 
 imports silver:langutil:pp;
 
-nonterminal SelectExpr with location, pp, errors, value, chanType, chan;
+nonterminal SelectExpr with location, pp, value, chanType, chan;
 nonterminal SelectCases with location, pp, errors, body, lifted<SelectCases>, globalDecls, env, def;
 
 synthesized attribute value::Expr;
@@ -10,30 +10,6 @@ synthesized attribute chan::Expr;
 synthesized attribute chanType::String;
 synthesized attribute body::Stmt;
 synthesized attribute def::Maybe<Stmt>;
-
-abstract production nilCase
-top::SelectCases ::= {
-   propagate lifted;
-   top.pp = text("");
-   top.errors := [];
-   top.globalDecls := [];
-   top.def = nothing();
-   top.body = nullStmt();
-}
-
-abstract production chanCase 
-top::SelectCases ::= chexp::SelectExpr stm::Stmt sc::SelectCases {
-   propagate lifted;
-   top.globalDecls := sc.globalDecls;
-   top.def = sc.def;
-   sc.env = top.env;
-   top.body = seqStmt(
-                ifStmtNoElse(
-                        chanCond(chexp, location=top.location),
-                        seqStmt(stm,breakStmt())),
-                sc.body);
-}
-
 
 abstract production chanCond 
 top::Expr ::= chExpr::SelectExpr 
@@ -48,6 +24,8 @@ top::SelectExpr ::= ch::Expr
 {
   top.chanType = "receive";
   top.chan = ch;
+  top.value = ch;
+  top.pp = text("receive");
 }
 
 abstract production makeSend
@@ -56,6 +34,7 @@ top::SelectExpr ::= ch::Expr v::Expr
   top.chanType = "send";
   top.chan = ch;
   top.value = v;
+  top.pp = text("send");
 }
 
 abstract production makeAssign
@@ -64,6 +43,7 @@ top::SelectExpr ::= ch::Expr v::Expr
   top.chanType = "assign";
   top.chan = ch;
   top.value = v;
+  top.pp = text("assign");
 }
 
 abstract production trySend
@@ -112,19 +92,49 @@ top::Stmt ::= cs::SelectCases {
                | nothing() -> cs.body end;
      
    forwards to whileStmt(
-                                mkIntConst(1, cs.location),
-                                body);  
+            mkIntConst(1, cs.location),
+            body);  
+}
+
+
+abstract production nilCase
+top::SelectCases ::= {
+   propagate lifted;
+   top.pp = text("");
+   top.errors := [];
+   top.globalDecls := [];
+   top.def = nothing();
+   top.body = nullStmt();
+}
+
+abstract production chanCase 
+top::SelectCases ::= chexp::SelectExpr stm::Stmt sc::SelectCases {
+   propagate lifted;
+   top.globalDecls := sc.globalDecls;
+   top.def = sc.def;
+   top.pp = ppConcat([chexp.pp, sc.pp]);
+   top.errors := sc.errors;
+
+   sc.env = top.env;
+   top.body = seqStmt(
+                ifStmtNoElse(
+                        chanCond(chexp, location=top.location),
+                        seqStmt(stm,breakStmt())),
+                sc.body);
 }
 
 abstract production defaultCase 
 top::SelectCases ::= stm::Stmt sc::SelectCases {
    propagate lifted;
    top.body = sc.body;
+   top.pp = ppConcat([text("default,"), sc.pp]);
 
    top.def = case sc.def of 
-       just(def) -> sc.def
+       just(def) -> nothing()
      | nothing() -> just(seqStmt(stm, breakStmt())) end;
    
-   --top.errors := if top.def == nothing() then "Multiple default statements in select" :: top.errors
+   top.errors := sc.errors;
+   --top.errors <- case top.def of
+   --  nothing() then "Multiple default statements in select" ++ top.errors
    --             else top.errors;
 }
