@@ -9,7 +9,8 @@ set -e
 # The -I directive include, respectively, the parent directory of the
 # artifact, and ableC specification direcoties.
 
-#silver -I ../.. -I ../../ableC  -I ../../ableC/extensions/templating -o ableC.jar edu:umn:cs:melt:exts:ableC:goConcurrency:artifact
+# silver -I ../.. -I ../../ableC  -I ../../ableC/extensions/templating -o ableC.jar edu:umn:cs:melt:exts:ableC:goConcurrency:artifact
+# silver --clean --warn-all -I ../.. -I ../../ableC  -I ../../ableC/extensions/templating -o ableC.jar edu:umn:cs:melt:exts:ableC:goConcurrency:artifact
 
 silver -I ../.. -I ../../ableC  -I ../../ableC/extensions/templating -o ableC.jar $@ \
   edu:umn:cs:melt:exts:ableC:goConcurrency:artifact

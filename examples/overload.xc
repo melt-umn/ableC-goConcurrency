@@ -18,25 +18,10 @@
 // A failure of this test would be known if the same value was printed
 // twice, or if any value from 0-59 is not printed.
 
-void *send1(Channel<int>* ch) {
+void *send20(Channel<int>* ch, int start) {
 	int i;
-	for (i = 0; i < 20; i++) {
-        ch <- i;
-	}
-}
-
-void *send2(Channel<int>* ch) {
-	int i;
-	for (i = 20; i < 40; i++) {
-        ch <- i;
-	}
-}
-
-
-void *send3(Channel<int>* ch) {
-	int i;
-	for (i = 40; i < 60; i++) {
-        ch <- i;
+	for (i = start; i < start+20; i++) {
+		ch <- i;
 	}
 }
 
@@ -60,9 +45,9 @@ void *printReceive(Channel<int>* ch)  {
 
 int main( int argc, char** argv ) {
     Channel<int> *ch = chan_open<int>();
-	spawn(send1, ch);
-	spawn(send2, ch);
-	spawn(send3, ch);
+	spawn(send20, ch, 0);
+	spawn(send20, ch, 20);
+	spawn(send20, ch, 40);
 	spawn(printReceive, ch);
 	spawn(printReceive, ch);
 	int i;
