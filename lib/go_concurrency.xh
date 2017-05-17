@@ -28,14 +28,29 @@ typedef struct __OpQueue {
 } OpQueue;
 
 template<a>
+struct VQueue {
+   a v;
+   VQueue<a> *next;
+};
+
+template<a>
 struct Channel { 
     a v;
     int closed;
+    VQueue<a> *vq;
     OpQueue *recvq;
     OpQueue *sendq;
     pthread_mutex_t lock;
     pthread_cond_t vcond;
 };
+
+template<a>
+VQueue<a> *_v_queue_new(a v, VQueue<a> *next) {
+    VQueue<a> *vq = malloc(sizeof(VQueue<a>));
+    vq->v = v;
+    vq->next = next;
+    return vq;
+}
 
 OpQueue *_op_queue_new() {
     OpQueue *tq = malloc(sizeof(OpQueue));
@@ -56,6 +71,7 @@ Channel<a> *chan_open() {
     pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER; 
     pthread_cond_t cond = PTHREAD_COND_INITIALIZER; 
     Channel<a> *c = malloc(sizeof(Channel<a>));
+    c->vq = NULL;
     c->recvq = _op_queue_new();
     c->sendq = _op_queue_new();
     c->lock = lock;
@@ -87,6 +103,12 @@ void chan_close(Channel<a> *ch) {
         _op_queue_free(next_queue);
         next_queue = ch->sendq;
     }
+    VQueue<a> *next_v = ch->vq;
+    while (next_v != NULL) {
+        ch->vq = next_v->next;
+        free(next_v);
+        next_v = ch->vq;
+    }
     free(ch);
 }
 
@@ -108,6 +130,9 @@ template<a>
 int try_chan_send(Channel<a> *ch, a v) {
     pthread_cond_t *recv_cond = ch->recvq->cond;
     
+    // Todo for buffered impl:
+    // This condition changes to be (... || buffer not filled)
+    // the buffer size represented by the length of vq. 
     if (recv_cond != NULL) {
         // If there is a receiver waiting for a value,
         // drop that receiver from the queue to claim it. 
@@ -118,7 +143,8 @@ int try_chan_send(Channel<a> *ch, a v) {
         // Set the value of this channel to be the 
         // value sent in, then unlock that receiver's
         // thread so they can properly receive it.
-        ch->v = v;
+        // ch->v = v;
+        ch->vq = _v_queue_new<a>(v, ch->vq);
         // Wake the waiting receiver up
         pthread_cond_signal(recv_cond);
         return 1;
@@ -154,7 +180,7 @@ void chan_send(Channel<a> *ch, a v) {
     // cond_wait unlocks, and locks again after it return
     pthread_cond_wait(send_lock->cond,&(ch->lock));
     _op_queue_free(send_lock);
-    ch->v = v;
+    ch->vq = _v_queue_new<a>(v, ch->vq);
     pthread_cond_signal(&(ch->vcond));
     pthread_mutex_unlock(&(ch->lock));
     return;
@@ -165,7 +191,9 @@ int chan_recv_select(Channel<a> *ch, a *v) {
     pthread_mutex_lock(&(ch->lock));
     int success = try_chan_recv<a>(ch); 
     if(success) {
-        *v = ch->v;
+        *v = ch->vq->v; 
+        ch->vq = ch->vq->next;
+        //*v = ch->v;
     } 
     pthread_mutex_unlock(&(ch->lock));
     return success;
@@ -201,7 +229,9 @@ template<a>
 a chan_recv(Channel<a> *ch) {
     pthread_mutex_lock(&(ch->lock));
     if (try_chan_recv<a>(ch)) {
-        a ret_v = ch->v;
+        //a ret_v = ch->v;
+        a ret_v = ch->vq->v; 
+        ch->vq = ch->vq->next;
         pthread_mutex_unlock(&(ch->lock));
         return ret_v;
     }
@@ -218,7 +248,8 @@ a chan_recv(Channel<a> *ch) {
     // cond_wait unlocks, and locks again after it returns
     pthread_cond_wait(recv_lock->cond,&(ch->lock));
     _op_queue_free(recv_lock);
-    a ret_v = ch->v; 
+    a ret_v = ch->vq->v; 
+    ch->vq = ch->vq->next;
     pthread_mutex_unlock(&(ch->lock));
     return ret_v;
 }

@@ -9,6 +9,7 @@
 void *generate(Channel<int>* ch) {
 	int i = 2;
     while (1) {
+        //printf("Generating: %d\n", i);
         ch <- i; 
         i++;
 	}
@@ -18,7 +19,8 @@ void *generate(Channel<int>* ch) {
 // removing those divisible by 'prime'.
 void *filter(Channel<int>* in, Channel<int>* out, int prime) {
     while (1) {
-        int i = <-in; 
+        int i = <-in;
+        //printf("Filter: %d\n", i); 
         if ((i % prime) != 0) {
           out <- i; 
         }
