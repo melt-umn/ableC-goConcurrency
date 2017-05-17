@@ -49,6 +49,9 @@ top::SelectExpr ::= ch::Expr v::Expr
 abstract production trySend
 top::Expr ::= ch::Expr v::Expr
 {
+  propagate substituted;
+  top.pp = pp"trySend(${ch.pp})";
+
   forwards to 
       callExpr(
           tmp:templateDeclRefExpr(name("chan_send_select",location=top.location), 
@@ -60,6 +63,9 @@ top::Expr ::= ch::Expr v::Expr
 abstract production tryAssign
 top::Expr ::= ch::Expr v::Expr
 {
+  propagate substituted;
+  top.pp = pp"tryAssign(${ch.pp})";
+
   local channelType::Type = channelSubType(ch.typerep, ch.env);
 
   local vpointer::Expr = subExpr([declRefSubstitution("__expr__", v)],
@@ -77,6 +83,9 @@ top::Expr ::= ch::Expr v::Expr
 abstract production tryReceive
 top::Expr ::= ch::Expr
 {
+  propagate substituted;
+  top.pp = pp"tryReceive(${ch.pp})";
+
   local channelType::Type = channelSubType(ch.typerep, ch.env);
 
   forwards to 

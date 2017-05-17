@@ -5,6 +5,9 @@ global builtin::Location = builtinLoc("go_conc");
 abstract production spawnFunction
 top::Stmt ::= argList::[Expr] origFunc::Expr
 {
+  propagate substituted;
+  top.pp = pp"spawn(${origFunc.pp})";
+
   local args::Exprs = foldExpr(argList);
   local id::String = toString(genInt()); 
   local argStructName::String = s"_spawn_arg_${id}_s";

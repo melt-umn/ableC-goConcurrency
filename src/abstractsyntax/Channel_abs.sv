@@ -21,20 +21,31 @@ top::Expr ::= t::TypeName
 
 abstract production close
 top::Expr ::= ch::Expr
-{
+{ 
+  propagate substituted;
+  top.pp = pp"close(${ch.pp})";
+
   local channelType::Type = channelSubType(ch.typerep, ch.env);
 
-  forwards to 
+  -- next, fill this with an error from the above channelSubType
+  local localErrors::[Message] = [];
+
+  local fwrd::Expr = 
       callExpr(
           tmp:templateDeclRefExpr(name("chan_close",location=top.location), 
               consTypeName(typeName(directTypeExpr(channelType), baseTypeExpr()),
                    nilTypeName()),location=top.location),
           consExpr(ch, nilExpr()), location=top.location);
+
+  forwards to mkErrorCheck(localErrors, fwrd);
 }
 
 abstract production send
 top::Expr ::= ch::Expr v::Expr
 {
+  propagate substituted;
+  top.pp = pp"send(${ch.pp})";
+
   forwards to 
       callExpr(
           tmp:templateDeclRefExpr(name("chan_send",location=top.location), 
@@ -46,6 +57,9 @@ top::Expr ::= ch::Expr v::Expr
 abstract production recieve
 top::Expr ::= ch::Expr
 {
+  propagate substituted;
+  top.pp = pp"recieve(${ch.pp})";
+
   local channelType::Type = channelSubType(ch.typerep, ch.env);
 
   forwards to 
