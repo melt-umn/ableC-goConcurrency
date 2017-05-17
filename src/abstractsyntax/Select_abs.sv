@@ -134,7 +134,7 @@ top::SelectCases ::= stm::Stmt sc::SelectCases {
        just(def) -> nothing()
      | nothing() -> just(seqStmt(stm, breakStmt())) end;
    
-   top.errors <- case top.def of
+   top.errors := case top.def of
        nothing() -> [err(top.location, "Multiple default statements in select")] ++ sc.errors
      | just(d) -> sc.errors end;
 }
