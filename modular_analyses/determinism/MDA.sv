@@ -1,55 +1,55 @@
-grammar edu:umn:cs:melt:exts:ableC:goConcurrency:modular_analyses:determinism ;
+grammar determinism;
 
 import edu:umn:cs:melt:ableC:host ;
 
 copper_mda testArrow(ablecParser) {
-  edu:umn:cs:melt:exts:ableC:goConcurrency:src:concretesyntax:arrow;
+  edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:arrow;
 }
 
 copper_mda testCloseTerm(ablecParser) {
-  edu:umn:cs:melt:exts:ableC:goConcurrency:src:concretesyntax:closeTerm;
+  edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:closeTerm;
 }
 
 copper_mda testAssignTerm(ablecParser) {
-  edu:umn:cs:melt:exts:ableC:goConcurrency:src:concretesyntax:selectAssignTerm;
+  edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:selectAssignTerm;
 }
 
 copper_mda testSelectTerm(ablecParser) {
-  edu:umn:cs:melt:exts:ableC:goConcurrency:src:concretesyntax:selectTerm;
+  edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:selectTerm;
 }
 
 copper_mda testSpawnTerm(ablecParser) {
-  edu:umn:cs:melt:exts:ableC:goConcurrency:src:concretesyntax:spawnTerm;
+  edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:spawnTerm;
 }
 
 copper_mda testArrowInfix(ablecParser) {
-  edu:umn:cs:melt:exts:ableC:goConcurrency:src:concretesyntax:arrowInfix;
+  edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:arrowInfix;
 }
 
 copper_mda testClose(ablecParser) {
-  edu:umn:cs:melt:exts:ableC:goConcurrency:src:concretesyntax:close;
+  edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:close;
 }
 
 copper_mda testRecieve(ablecParser) {
-  edu:umn:cs:melt:exts:ableC:goConcurrency:src:concretesyntax:recieve;
+  edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:recieve;
 }
 
 copper_mda testSend(ablecParser) {
-  edu:umn:cs:melt:exts:ableC:goConcurrency:src:concretesyntax:send;
+  edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:send;
 }
 
 copper_mda testSpawn(ablecParser) {
-  edu:umn:cs:melt:exts:ableC:goConcurrency:src:concretesyntax:spawn;
+  edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:spawn;
 }
 
 copper_mda testSelectExpr(ablecParser) {
-  edu:umn:cs:melt:exts:ableC:goConcurrency:src:concretesyntax:selectExpr;
+  edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:selectExpr;
 }
 
 copper_mda testSelectCases(ablecParser) {
-  edu:umn:cs:melt:exts:ableC:goConcurrency:src:concretesyntax:selectCases;
+  edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:selectCases;
 }
 
 copper_mda testSelect(ablecParser) {
-  edu:umn:cs:melt:exts:ableC:goConcurrency:src:concretesyntax:select;
+  edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:select;
 }
