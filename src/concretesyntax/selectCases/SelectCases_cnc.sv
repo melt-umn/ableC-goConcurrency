@@ -1,11 +1,10 @@
 grammar edu:umn:cs:melt:exts:ableC:goConcurrency:src:concretesyntax:selectCases;
 
-imports edu:umn:cs:melt:exts:ableC:goConcurrency:src:concretesyntax:selectExpr;
-imports edu:umn:cs:melt:exts:ableC:goConcurrency:src:concretesyntax:selectTerm;
-imports edu:umn:cs:melt:exts:ableC:goConcurrency:src:concretesyntax:arrow;
 imports edu:umn:cs:melt:ableC:concretesyntax;
 imports silver:langutil only ast; 
 imports edu:umn:cs:melt:exts:ableC:goConcurrency:src:abstractsyntax;
+
+exports edu:umn:cs:melt:exts:ableC:goConcurrency:src:concretesyntax:selectExpr;
 
 nonterminal SelectCases_c with location, ast<SelectCases>;
 
