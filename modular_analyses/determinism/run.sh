@@ -4,7 +4,9 @@
 # also exit on non-zero return code
 set -v -e
 
-silver -I ../../.. -I ../../../../ableC -o MDA.jar --clean $@ \
+# silver -I ../../.. -I ../../../ableC -I ../../../ableC/extensions/templating/ -o MDA.jar --clean edu:umn:cs:melt:exts:ableC:goConcurrency:modular_analyses:determinism
+
+silver -I ../../ -I ../../../ableC -o MDA.jar --clean $@ \
        edu:umn:cs:melt:exts:ableC:goConcurrency:modular_analyses:determinism
 
 # This script runs Silver on the grammar that performs the modular

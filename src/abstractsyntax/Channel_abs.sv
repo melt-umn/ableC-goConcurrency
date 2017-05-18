@@ -9,16 +9,6 @@ imports edu:umn:cs:melt:exts:ableC:templating:abstractsyntax as tmp;
 
 imports silver:langutil;
 
-abstract production open
-top::Expr ::= t::TypeName
-{
-  forwards to 
-      callExpr(
-          tmp:templateDeclRefExpr(name("chan_open",location=top.location), 
-              consTypeName(t, nilTypeName()),location=top.location),
-          nilExpr(), location=top.location);
-}
-
 abstract production close
 top::Expr ::= ch::Expr
 { 
