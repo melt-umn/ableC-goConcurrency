@@ -8,13 +8,13 @@ to and from this concurrent processes.
 Data is passed back and forth between concurrent functions using channels, exactly as
 it is in go.  Channels are defined using the new keyword `chan` as
 ```
-chan int ch = open chan;
+Channel<int> *ch = open_chan<int>()
 ```
 for an integer channel.  Multiple channels are defined similarly as
 ```
-chan int ch1 = open chan;
-chan int ch2 = open chan;
-chan int ch3 = open chan;
+Channel<int> *ch1 = open_chan<int>()
+Channel<int> *ch2 = open_chan<int>()
+Channel<int> *ch3 = open_chan<int>()
 ```
 Channels can be passed into functions like any other data type.
 ```
@@ -63,7 +63,5 @@ able to do anything.
 For more examples see the `examples` directory.
 
 ## Status
-Just a skeleton right now.  Positive and negative examples show usage, but
-nothing is functioning.
-
+Copper_mda fails. 
 
