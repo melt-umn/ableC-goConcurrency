@@ -22,8 +22,8 @@ copper_mda testSpawnTerm(ablecParser) {
   edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:spawnTerm;
 }
 
-copper_mda testArrowInfix(ablecParser) {
-  edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:arrowInfix;
+copper_mda testSend(ablecParser) {
+  edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:send;
 }
 
 copper_mda testClose(ablecParser) {
@@ -32,10 +32,6 @@ copper_mda testClose(ablecParser) {
 
 copper_mda testRecieve(ablecParser) {
   edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:recieve;
-}
-
-copper_mda testSend(ablecParser) {
-  edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:send;
 }
 
 copper_mda testSpawn(ablecParser) {

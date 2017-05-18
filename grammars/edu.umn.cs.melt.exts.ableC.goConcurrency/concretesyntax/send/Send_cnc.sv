@@ -2,12 +2,12 @@ grammar edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:send;
 
 imports edu:umn:cs:melt:ableC:concretesyntax;
 imports silver:langutil only ast; 
-imports edu:umn:cs:melt:exts:ableC:goConcurrency:abstractsyntax;
+imports edu:umn:cs:melt:exts:ableC:goConcurrency:abstractsyntax only send;
 
-exports edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:arrowInfix;
+exports edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:arrow;
 
-concrete production sendTo_c
-s::AssignExpr_c ::= ch::PrimaryExpr_c a::ArrowInfix_c v::PrimaryExpr_c
+concrete productions top::AddMulNoneOp_c
+| '<-'
 {
-  s.ast = send(ch.ast, v.ast, location=s.location);
+    top.ast = send(top.leftExpr, top.rightExpr, location=top.location);
 }
