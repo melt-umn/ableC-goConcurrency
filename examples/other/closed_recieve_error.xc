@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <pthread.h>
 
+// Preventing sends and recieves on closed channels
+// is not yet implemented
+
 int main () {
 
   Channel<int> *ch = chan_open<int>();
