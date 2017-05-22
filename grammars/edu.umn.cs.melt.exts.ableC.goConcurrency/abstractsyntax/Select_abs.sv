@@ -11,41 +11,6 @@ synthesized attribute chanType::String;
 synthesized attribute body::Stmt;
 synthesized attribute def::Maybe<Stmt>;
 
-abstract production chanCond 
-top::Expr ::= chExpr::SelectExpr 
-{
-  forwards to if chExpr.chanType == "receive" then tryReceive(chExpr.chan, location=top.location)
-    else if chExpr.chanType == "send" then trySend(chExpr.chan, chExpr.value, location=top.location)
-     else tryAssign(chExpr.chan, chExpr.value, location=top.location);
-}
-
-abstract production makeReceive
-top::SelectExpr ::= ch::Expr
-{
-  top.chanType = "receive";
-  top.chan = ch;
-  top.value = ch;
-  top.pp = text("receive");
-}
-
-abstract production makeSend
-top::SelectExpr ::= ch::Expr v::Expr
-{
-  top.chanType = "send";
-  top.chan = ch;
-  top.value = v;
-  top.pp = text("send");
-}
-
-abstract production makeAssign
-top::SelectExpr ::= ch::Expr v::Expr
-{
-  top.chanType = "assign";
-  top.chan = ch;
-  top.value = v;
-  top.pp = text("assign");
-}
-
 abstract production trySend
 top::Expr ::= ch::Expr v::Expr
 {
@@ -119,7 +84,7 @@ top::SelectCases ::= {
 }
 
 abstract production chanCase 
-top::SelectCases ::= chexp::SelectExpr stm::Stmt sc::SelectCases {
+top::SelectCases ::= chexp::Expr stm::Stmt sc::SelectCases {
    top.globalDecls := sc.globalDecls;
    top.def = sc.def;
    top.pp = ppConcat([chexp.pp, sc.pp]);
@@ -128,7 +93,7 @@ top::SelectCases ::= chexp::SelectExpr stm::Stmt sc::SelectCases {
    sc.env = top.env;
    top.body = seqStmt(
                 ifStmtNoElse(
-                        chanCond(chexp, location=top.location),
+                        chexp,
                         seqStmt(stm,breakStmt())),
                 sc.body);
 }

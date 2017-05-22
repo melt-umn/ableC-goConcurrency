@@ -7,7 +7,7 @@ imports edu:umn:cs:melt:exts:ableC:goConcurrency:abstractsyntax only recieve;
 exports edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:arrow;
 
 concrete production recieveFrom_c
-s::UnaryExpr_c ::= '<-' ch::PrimaryExpr_c
+s::UnaryExpr_c ::= Arrow_t ch::UnaryExpr_c
 {
   s.ast = recieve(ch.ast, location=s.location);
 }

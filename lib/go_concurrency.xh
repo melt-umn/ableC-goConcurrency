@@ -119,14 +119,6 @@ void spawn_routine(void*(*start_function) (void *), void *args) {
 }
 
 template<a>
-int chan_send_select(Channel<a> *ch, a v) {
-    pthread_mutex_lock(&(ch->lock));
-    int success = try_chan_send(ch, v);
-    pthread_mutex_unlock(&(ch->lock));
-    return success;
-}
-
-template<a>
 int try_chan_send(Channel<a> *ch, a v) {
     pthread_cond_t *recv_cond = ch->recvq->cond;
     
@@ -151,6 +143,15 @@ int try_chan_send(Channel<a> *ch, a v) {
     };
     return 0;
 }
+
+template<a>
+int chan_send_select(Channel<a> *ch, a v) {
+    pthread_mutex_lock(&(ch->lock));
+    int success = try_chan_send<a>(ch, v);
+    pthread_mutex_unlock(&(ch->lock));
+    return success;
+}
+
 
 template<a>
 void chan_send(Channel<a> *ch, a v) {
@@ -187,6 +188,24 @@ void chan_send(Channel<a> *ch, a v) {
 }
 
 template<a>
+int try_chan_recv(Channel<a> *ch) {
+    pthread_cond_t *send_cond = ch->sendq->cond;
+    
+    if (send_cond != NULL) {
+        // If there is a sender waiting,
+        // drop that sender from the queue to claim it. 
+        ch->sendq = ch->sendq->next;
+        if (ch->sendq == NULL) {
+            ch->sendq = _op_queue_new();
+        }
+        pthread_cond_signal(send_cond);
+        pthread_cond_wait(&(ch->vcond),&(ch->lock));
+        return 1;
+    }
+    return 0;
+}
+
+template<a>
 int chan_recv_select(Channel<a> *ch, a *v) {
     pthread_mutex_lock(&(ch->lock));
     int success = try_chan_recv<a>(ch); 
@@ -205,24 +224,6 @@ int chan_recv_select_drop(Channel<a> *ch) {
     int success = try_chan_recv<a>(ch); 
     pthread_mutex_unlock(&(ch->lock));
     return success;
-}
-
-template<a>
-int try_chan_recv(Channel<a> *ch) {
-    pthread_cond_t *send_cond = ch->sendq->cond;
-    
-    if (send_cond != NULL) {
-        // If there is a sender waiting,
-        // drop that sender from the queue to claim it. 
-        ch->sendq = ch->sendq->next;
-        if (ch->sendq == NULL) {
-            ch->sendq = _op_queue_new();
-        }
-        pthread_cond_signal(send_cond);
-        pthread_cond_wait(&(ch->vcond),&(ch->lock));
-        return 1;
-    }
-    return 0;
 }
 
 template<a>

@@ -7,7 +7,7 @@ imports edu:umn:cs:melt:exts:ableC:goConcurrency:abstractsyntax only send;
 exports edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:arrow;
 
 concrete productions top::AddMulNoneOp_c
-| '<-'
+| Arrow_t
 {
     top.ast = send(top.leftExpr, top.rightExpr, location=top.location);
 }
