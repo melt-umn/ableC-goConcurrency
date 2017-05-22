@@ -11,6 +11,7 @@ synthesized attribute chanType::String;
 synthesized attribute body::Stmt;
 synthesized attribute def::Maybe<Stmt>;
 
+-- call the appropriately typed chan_send_select function
 abstract production trySend
 top::Expr ::= ch::Expr v::Expr
 {
@@ -25,6 +26,7 @@ top::Expr ::= ch::Expr v::Expr
           consExpr(ch, consExpr(v, nilExpr())), location=top.location);
 }
 
+-- call the appropriately typed chan_recv_select function
 abstract production tryAssign
 top::Expr ::= ch::Expr v::Expr
 {
@@ -45,6 +47,7 @@ top::Expr ::= ch::Expr v::Expr
           consExpr(ch, consExpr(vpointer, nilExpr())), location=top.location);
 }
 
+-- call the appropriately typed chan_recv_select_drop function
 abstract production tryReceive
 top::Expr ::= ch::Expr
 {
@@ -61,6 +64,7 @@ top::Expr ::= ch::Expr
           consExpr(ch, nilExpr()), location=top.location);
 }
 
+-- format a select statement as a while loop ending in a default case
 abstract production select
 top::Stmt ::= cs::SelectCases {
   
@@ -73,7 +77,7 @@ top::Stmt ::= cs::SelectCases {
             body);  
 }
 
-
+-- a select case that does nothing
 abstract production nilCase
 top::SelectCases ::= {
    top.pp = text("");
@@ -83,6 +87,8 @@ top::SelectCases ::= {
    top.body = nullStmt();
 }
 
+-- wrap a select expression in an if statement and a following
+-- statement to run when the select expression is true
 abstract production chanCase 
 top::SelectCases ::= chexp::Expr stm::Stmt sc::SelectCases {
    top.globalDecls := sc.globalDecls;
@@ -98,6 +104,7 @@ top::SelectCases ::= chexp::Expr stm::Stmt sc::SelectCases {
                 sc.body);
 }
 
+-- handle default cases, dont allow duplicates
 abstract production defaultCase 
 top::SelectCases ::= stm::Stmt sc::SelectCases {
   top.globalDecls := sc.globalDecls;

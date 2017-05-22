@@ -9,6 +9,7 @@ imports edu:umn:cs:melt:exts:ableC:templating:abstractsyntax as tmp;
 
 imports silver:langutil;
 
+-- call the appropriately typed chan_close function 
 abstract production close
 top::Expr ::= ch::Expr
 { 
@@ -18,6 +19,7 @@ top::Expr ::= ch::Expr
   local channelType::Type = channelSubType(ch.typerep, ch.env);
 
   -- next, fill this with an error from the above channelSubType
+  -- and so on for remaining productions that call channelSubType
   local localErrors::[Message] = [];
 
   local fwrd::Expr = 
@@ -30,6 +32,7 @@ top::Expr ::= ch::Expr
   forwards to mkErrorCheck(localErrors, fwrd);
 }
 
+-- call the appropriately typed chan_send function
 abstract production send
 top::Expr ::= ch::Expr v::Expr
 {
@@ -44,6 +47,7 @@ top::Expr ::= ch::Expr v::Expr
           consExpr(ch, consExpr(v, nilExpr())), location=top.location);
 }
 
+-- call the appropriately typed chan_recieve function
 abstract production recieve
 top::Expr ::= ch::Expr
 {

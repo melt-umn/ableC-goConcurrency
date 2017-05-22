@@ -1,7 +1,6 @@
 grammar edu:umn:cs:melt:exts:ableC:goConcurrency:abstractsyntax;
 
--- Obtain the type of the values stored
--- in a given channel.
+-- Obtain the type of the values stored in a given channel.
 abstract production channelSubType
 top::Type ::= ch::Type e::Decorated Env
 {

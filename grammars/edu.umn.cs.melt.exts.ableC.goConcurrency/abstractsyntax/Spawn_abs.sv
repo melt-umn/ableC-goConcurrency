@@ -2,6 +2,7 @@ grammar edu:umn:cs:melt:exts:ableC:goConcurrency:abstractsyntax;
 
 global builtin::Location = builtinLoc("go_conc");
 
+-- spawn a function on its own thread 
 abstract production spawnFunction
 top::Stmt ::= argList::[Expr] origFunc::Expr
 {
@@ -53,6 +54,7 @@ top::Stmt ::= argList::[Expr] origFunc::Expr
   forwards to injectGlobalDeclsStmt (  globalDecls, actual_forwards );
 }
 
+-- retrieve a set of function parameters from a struct
 function paramsFromStruct
 Exprs ::= args::[Expr] count::Integer
 {
@@ -89,6 +91,7 @@ Stmt::= args::[Expr] structName::String varName::String
                          fillArgs(args,varName, 0));
 }
 
+-- fill a struct with a set of arguments
 function fillArgs
 Stmt::= args::[Expr] varName::String count::Integer
 {
