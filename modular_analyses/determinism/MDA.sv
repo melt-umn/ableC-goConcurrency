@@ -35,6 +35,10 @@ import edu:umn:cs:melt:ableC:host ;
 --  edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:selectCases;
 --}
 
+copper_mda testSelect(ablecParser) {
+  edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:select;
+}
+
 copper_mda testSend(ablecParser) {
   edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:send;
 }
@@ -49,8 +53,4 @@ copper_mda testSpawn(ablecParser) {
 
 copper_mda testClose(ablecParser) {
   edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:close;
-}
-
-copper_mda testSelect(ablecParser) {
-  edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:select;
 }

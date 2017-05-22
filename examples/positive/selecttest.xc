@@ -30,8 +30,10 @@ int main(){
   int j;
   for(i = 0; i < 2; i++){
     select {
-      case j =<-ch1: printf("Channel %d\n", j);
       case <-ch2: printf("Channel Two\n");
+
+      case j =<-ch1: printf("Channel %d\n", j);
+
       case ch1 <- 5: printf("Channel Three\n");
     }
   }

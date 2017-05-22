@@ -17,20 +17,15 @@ disambiguate Arrow_t, SelectArrow_t {
 closed nonterminal SelectExpr_c with location, ast<Expr>;
 
 concrete productions s::SelectExpr_c
-| SelectArrow_t ch::UnaryExpr_c
+| SelectArrow_t ch::AssignExpr_c
 {
   s.ast = tryReceive(ch.ast, location=s.location);
 }
---| ch::UnaryExpr_c SelectArrow_t v::UnaryExpr_c
---{   
---  s.ast = trySend(ch.ast, v.ast, location=s.location);
---}
+| ch::PrimaryExpr_c  op::AddMulNoneOp_c v::UnaryExpr_c
+{   
+  s.ast = trySend(ch.ast, v.ast, location=s.location);
+}
 | v::UnaryExpr_c '=' SelectArrow_t ch::UnaryExpr_c 
 {
   s.ast = tryAssign(ch.ast, v.ast, location=s.location);
 }
-
--- We need to create a new binary operation type? 
--- The issue becomes avoiding a conflict with x arrow_t y 
--- and x selectarrow_t y, if both of them are just AddMulOp_c
- 
