@@ -31,26 +31,14 @@ We call functions to run concurrently using the keyword `spawn`.  These concurre
 work similarly to the goroutines in go and `spawn` is analogous to go's `go` keyword.
 `spawn` works for calling defined functions:
 ```
-int main (int argc, char **argv) {
-  chan int ch = open chan;
-  spawn example(ch);
-  <-ch;
-  return 0; 
-}
-
 int example (chan int ch2) {
   ch2 <- 1;
   return 0;
 }
-```
-It can also be used on closures:
-```
-int main (int argc, char **argv) {
-  chan int ch = open chan;
-  spawn func(chan int ch2) {
-    ch2 <- 1;
-  }(ch);
 
+int main (int argc, char **argv) {
+  Channel<int> *ch = open chan;
+  spawn example(ch);
   <-ch;
   return 0; 
 }
@@ -62,6 +50,30 @@ able to do anything.
 
 For more examples see the `examples` directory.
 
-## Status
-Copper_mda fails. 
+### Select blocks
+One can make a `select` statement that waits for one of any number of channel
+operations to happen, or on default proceeds on without blocking.
 
+```
+select {
+  case ch <- 2:
+  case v = <-ch:
+  case <-ch:
+  default:
+}
+```
+
+Select statements are not randomized as in Go. In Go, if more than one channel
+operation could happen when a select block is reached, it will pick one at random.
+Our extension will always pick the first available statement in order, top-down.
+
+## Status
+
+Full functionality for non-buffered channels, non-closures.
+
+MDA and MDFA pass.
+
+Some errors could be made to be nicer strings, some 
+additional error checking could be added with more
+failure cases. 
+ 
