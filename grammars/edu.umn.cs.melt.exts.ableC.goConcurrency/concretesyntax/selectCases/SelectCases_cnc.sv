@@ -8,7 +8,6 @@ imports edu:umn:cs:melt:exts:ableC:goConcurrency:abstractsyntax;
 exports edu:umn:cs:melt:exts:ableC:goConcurrency:concretesyntax:arrow;
 
 terminal SelectArrow_t '<-' lexer classes{Cassignment}, association = left;
-terminal EqArrow '=<-' lexer classes{Cassignment};
 
 disambiguate Arrow_t, SelectArrow_t {
   pluck Arrow_t;
