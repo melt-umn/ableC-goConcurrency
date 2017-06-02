@@ -4,7 +4,7 @@ EXT_HOME=../../..
 # The jar file to built
 ABLEC_JAR=ableC.jar
 # The artifact specification grammar to compile
-ARTIFACT=artifact
+ARTIFACT=goConcartifact
 # All directories containing grammars that may be included
 # Templating is used by this grammar, using a wildcard here picks
 # up grammars that are not up to date with silver

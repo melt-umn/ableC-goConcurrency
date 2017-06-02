@@ -16,7 +16,7 @@ top::Stmt ::= argList::[Expr] origFunc::Expr
   
   local argStructDcl::Decl =
     typeExprDecl(nilAttribute(),
-      structTypeExpr([],
+      structTypeExpr(nilQualifier(),
         structDecl(nilAttribute(),
           justName(name(argStructName, location=builtin)),
           argsToStructItems(argList, 0, openScope(top.env)),
@@ -46,8 +46,8 @@ top::Stmt ::= argList::[Expr] origFunc::Expr
                 consExpr(
                     parseExpr(s"""${funName}"""), consExpr(
                         explicitCastExpr(typeName(
-                            directTypeExpr(builtinType([],voidType())), 
-                                pointerTypeExpr([], baseTypeExpr())), 
+                            directTypeExpr(builtinType(nilQualifier(),voidType())), 
+                                pointerTypeExpr(nilQualifier(), baseTypeExpr())), 
                             structVarExpr, location=builtin), 
                         nilExpr())), location=builtin)));
 
