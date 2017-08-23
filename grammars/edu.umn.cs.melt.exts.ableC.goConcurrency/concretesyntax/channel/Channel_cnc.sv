@@ -59,7 +59,7 @@ s::AssignExpr_c ::= Close_t '(' e::AssignExpr_c ')'
 
 marking terminal Select_t 'select' lexer classes{Ckeyword};
 
-concrete production Select_c 
+concrete production select_c 
 s::Stmt_c ::= 'select' '{' lst::SelectCases_c '}' 
 {
   s.ast = select(lst.ast);

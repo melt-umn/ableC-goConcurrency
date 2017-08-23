@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../../lib/go_concurrency.xh"
+#include "../../include/go_concurrency.xh"
 #include <stdlib.h>
 #include <pthread.h>
 
