@@ -96,6 +96,18 @@ node {
                    [url: 'https://github.com/melt-umn/ableC.git']
                  ]
                ])
+      // Checkout dependancies
+      checkout([ $class: 'GitSCM',
+                 branches: [[name: '*/develop']],
+                 extensions: [
+                   [ $class: 'RelativeTargetDirectory',
+                     relativeTargetDir: "extensions/ableC-templating"],
+                   [ $class: 'CleanCheckout']
+                 ],
+                 userRemoteConfigs: [
+                   [url: 'https://github.com/melt-umn/ableC-templating.git']
+                 ]
+               ])
 
       /* env.PATH is the master's path, not the executor's */
       withEnv(env) {
